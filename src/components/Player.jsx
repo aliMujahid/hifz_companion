@@ -15,24 +15,24 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useState, useRef, useEffect, useCallback } from "react";
 
-const surahData = {
-  index: 18,
-  englishName: "Al-Kahf (The Cave)",
-  arabicName: "الكهف",
-  totalAyah: 110,
-  ruku: 12,
-  revelationType: "Meccan",
-};
-
-export default function Player({ togglePlayerVisibility }) {
+export default function Player({
+  surahData,
+  togglePlayerVisibility,
+  ayahNumberFirst,
+  totalAyah,
+}) {
   const theme = useTheme();
   const audioSourceUrl = [
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/2.mp3",
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/3.mp3",
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/4.mp3",
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/5.mp3",
   ];
+
+  for (let index = 0; index <= totalAyah; index++) {
+    audioSourceUrl.push(
+      `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${
+        ayahNumberFirst + index
+      }.mp3`
+    );
+  }
 
   const [open, setOpen] = useState(true);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -87,6 +87,18 @@ export default function Player({ togglePlayerVisibility }) {
     audioSourceUrl.length,
     goToNextTrack,
   ]);
+
+  // useEffect(() => {
+  //   setCurrentTrackIndex(0);
+  //   setCurrentRepeat(0);
+  //   setPaused(true);
+  //   setIsDone(false);
+
+  //   if (audioRef.current) {
+  //     audioRef.current.pause();
+  //     audioRef.current.currentTime = 0;
+  //   }
+  // }, [ayahNumberFirst]); // Trigger when a new Surah is selected
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
@@ -251,14 +263,14 @@ export default function Player({ togglePlayerVisibility }) {
             sx={{ p: 2, textAlign: "center", fontFamily: "AlQalam" }}
             dir="rtl"
           >
-            {surahData.arabicName}
+            {surahData.name}
           </Typography>
           <Typography
             variant="h6"
             color="white"
             sx={{ p: 2, textAlign: "center" }}
           >
-            {surahData.index}
+            {surahData.number}
           </Typography>
         </Box>
 

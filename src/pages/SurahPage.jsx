@@ -41,6 +41,33 @@ export default function SurahPage() {
     fetchData();
   }, []);
 
+  const [selectedSurah, setSelectedSurah] = useState(1);
+  const [numberOfAyahs, setNumberOfAyahs] = useState(7);
+  const [ayahNumberFirst, setAyahNumberFirst] = useState(1);
+  const [isSurahLoading, setIsSurahLoading] = useState(true);
+  const [errorSurah, setErrorSurah] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `https://api.alquran.cloud/v1/ayah/${selectedSurah}:1/ar.alafasy`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        setAyahNumberFirst(result.data.number);
+      } catch (e) {
+        console.error("Fetch error:", e.message);
+        setErrorSurah(e);
+      } finally {
+        setIsSurahLoading(false);
+      }
+    };
+    fetchData();
+  }, [selectedSurah]);
+
   return (
     <Box>
       <Box sx={{ p: 2, maxWidth: 500, margin: "0 auto" }}>
@@ -53,7 +80,7 @@ export default function SurahPage() {
           <>
             <CircularProgress color="primary" />
             <Typography variant="h6" sx={{ mt: 2 }}>
-              Loading posts...
+              Loading Surahs...
             </Typography>
           </>
         ) : (
@@ -63,11 +90,19 @@ export default function SurahPage() {
           >
             {data.map((surah) => (
               // We wrap the SurahRow in a key for performance and stability
-              <SurahInfoCard key={surah.number} surah={surah} />
+              <SurahInfoCard
+                onSurahCardClick={() => {
+                  setSelectedSurah(surah.number);
+                  setNumberOfAyahs(surah.numberOfAyahs);
+                }}
+                key={surah.number}
+                surah={surah}
+              />
             ))}
           </Stack>
         )}
       </Box>
+
       {/* Button to show the player if it's hidden */}
       {!isPlayerVisible && (
         <Box
@@ -103,7 +138,14 @@ export default function SurahPage() {
           boxSizing: "border-box",
         }}
       >
-        <Player togglePlayerVisibility={togglePlayerVisibility} />
+        {data && (
+          <Player
+            surahData={data[selectedSurah - 1]}
+            togglePlayerVisibility={togglePlayerVisibility}
+            ayahNumberFirst={ayahNumberFirst}
+            totalAyah={numberOfAyahs}
+          />
+        )}
       </Box>
     </Box>
   );

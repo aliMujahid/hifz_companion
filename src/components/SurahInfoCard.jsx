@@ -2,11 +2,12 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 
-export default function SurahInfoCard({ surah }) {
+export default function SurahInfoCard({ surah, onSurahCardClick }) {
   const theme = useTheme();
 
   return (
     <Box
+      onClick={onSurahCardClick}
       sx={{
         display: "flex", // Main container is a flexbox
         alignItems: "stretch", // Crucial: Makes children stretch to fill height
