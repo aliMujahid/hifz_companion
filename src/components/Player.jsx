@@ -12,11 +12,20 @@ import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack"; // Added Stack for layout
+import Stack from "@mui/material/Stack";
 import { useState, useRef, useEffect, useCallback } from "react";
 
+const surahData = {
+  index: 18,
+  englishName: "Al-Kahf (The Cave)",
+  arabicName: "الكهف",
+  totalAyah: 110,
+  ruku: 12,
+  revelationType: "Meccan",
+};
+
 export default function Player() {
-  const theme = useTheme(); // Initialize theme hook
+  const theme = useTheme();
   const audioSourceUrl = [
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/2.mp3",
@@ -118,14 +127,13 @@ export default function Player() {
   const handlePrevClick = () => {
     setCurrentRepeat(0);
     setCurrentTrackIndex((prevIndex) => {
-      // Corrected variable name here for clarity
       const newIndex =
         (prevIndex - 1 + audioSourceUrl.length) % audioSourceUrl.length;
       return newIndex;
     });
     setPaused(false);
   };
-  // --- Effects (Kept from previous version) ---
+
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -171,7 +179,6 @@ export default function Player() {
     };
   }, [currentTrackIndex, paused]);
 
-  // --- JSX Rendering ---
   return (
     <Box sx={{ p: 3, maxWidth: "70%", margin: "0 auto" }}>
       <Typography variant="h5" gutterBottom align="center">
@@ -180,24 +187,22 @@ export default function Player() {
       <Card
         sx={{
           display: "flex",
-          boxShadow: theme.shadows[10], // Stronger, more prominent shadow
-          borderRadius: 3, // Rounded corners
-          backgroundColor: theme.palette.background.paper, // Use theme background color
-          // The structure is now a horizontal flex container for the main content and album art
+          boxShadow: theme.shadows[10],
+          backgroundColor: theme.palette.background.paper,
         }}
       >
-        {/* Left Side: Album Art (New) */}
         <Box
           sx={{
             width: 150,
             height: "auto",
             flexShrink: 0,
             backgroundImage:
-              "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)", // Attractive gradient
+              "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: "3px 0 0 3px", // Only round the left corners
+            borderRadius: "3px 0 0 3px",
+            flexDirection: "column",
           }}
         >
           <Typography
@@ -205,7 +210,23 @@ export default function Player() {
             color="white"
             sx={{ p: 2, textAlign: "center" }}
           >
-            Surah <br /> {currentTrackIndex + 1}
+            {surahData.englishName}
+          </Typography>
+
+          <Typography
+            variant="h6"
+            color="white"
+            sx={{ p: 2, textAlign: "center", fontFamily: "AlQalam" }}
+            dir="rtl"
+          >
+            {surahData.arabicName}
+          </Typography>
+          <Typography
+            variant="h6"
+            color="white"
+            sx={{ p: 2, textAlign: "center" }}
+          >
+            {surahData.index}
           </Typography>
         </Box>
 
@@ -222,7 +243,7 @@ export default function Player() {
             sx={{ flex: "1 0 auto", p: 0, pb: 1, "&:last-child": { pb: 1 } }}
           >
             <Typography component="div" variant="h6">
-              Track {currentTrackIndex + 1}
+              Ayah {currentTrackIndex}
             </Typography>
             <Typography
               variant="subtitle1"
