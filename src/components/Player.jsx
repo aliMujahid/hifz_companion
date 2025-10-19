@@ -88,17 +88,17 @@ export default function Player({
     goToNextTrack,
   ]);
 
-  // useEffect(() => {
-  //   setCurrentTrackIndex(0);
-  //   setCurrentRepeat(0);
-  //   setPaused(true);
-  //   setIsDone(false);
+  useEffect(() => {
+    setCurrentTrackIndex(0);
+    setCurrentRepeat(0);
+    setPaused(true);
+    setIsDone(false);
 
-  //   if (audioRef.current) {
-  //     audioRef.current.pause();
-  //     audioRef.current.currentTime = 0;
-  //   }
-  // }, [ayahNumberFirst]); // Trigger when a new Surah is selected
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [ayahNumberFirst]); // Trigger when a new Surah is selected
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
