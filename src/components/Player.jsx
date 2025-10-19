@@ -1,63 +1,107 @@
 import CardContent from "@mui/material/CardContent";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
+import RepeatIcon from "@mui/icons-material/Repeat";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import CardMedia from "@mui/material/CardMedia";
+import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
-import { useState, useRef, useEffect } from "react";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack"; // Added Stack for layout
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export default function Player() {
-  const audioSourceUrl =
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3";
+  const theme = useTheme(); // Initialize theme hook
+  const audioSourceUrl = [
+    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
+    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/2.mp3",
+    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/3.mp3",
+    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/4.mp3",
+    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/5.mp3",
+  ];
 
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [repeatCount, setRepeatCount] = useState(1);
+  const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
+  const [isDone, setIsDone] = useState(false);
   const audioRef = useRef(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  useEffect(() => {
-    const audio = audioRef.current;
+  // --- Utility Functions (Kept from previous version) ---
+  const goToNextTrack = useCallback(() => {
+    setCurrentTrackIndex((prevIndex) => {
+      const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
+      return nextIndex;
+    });
+    setPaused(false);
+  }, [audioSourceUrl.length]);
 
-    const setAudioData = () => {
-      setDuration(audio.duration);
-      setCurrentTime(audio.currentTime);
-    };
+  const handleAudioEnd = useCallback(() => {
+    if (paused) return;
 
-    const updateTime = () => {
-      setCurrentTime(audio.currentTime);
-    };
+    const nextRepeat = currentRepeat + 1;
+    setCurrentRepeat(nextRepeat);
 
-    // Attach event listeners
-    audio.addEventListener("loadedmetadata", setAudioData);
-    audio.addEventListener("timeupdate", updateTime);
+    if (nextRepeat < repeatCount) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current
+          .play()
+          .catch((e) => console.error("Error playing audio after loop:", e));
+      }
+    } else {
+      const isLastTrack = currentTrackIndex === audioSourceUrl.length - 1;
 
-    // Clean up event listeners when the component unmounts
-    return () => {
-      audio.removeEventListener("loadedmetadata", setAudioData);
-      audio.removeEventListener("timeupdate", updateTime);
-    };
-  }, [audioSourceUrl]); // Rerun if the audio source changes
+      if (!isLastTrack) {
+        setCurrentRepeat(0);
+        goToNextTrack();
+      } else {
+        setPaused(true);
+        setIsDone(true);
+        setCurrentRepeat(0);
+      }
+    }
+  }, [
+    paused,
+    currentRepeat,
+    repeatCount,
+    currentTrackIndex,
+    audioSourceUrl.length,
+    goToNextTrack,
+  ]);
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
 
     if (paused) {
+      if (isDone) {
+        setCurrentTrackIndex(0);
+        setIsDone(false);
+      }
       audio.play();
     } else {
       audio.pause();
     }
 
     setPaused(!paused);
+    if (isDone) setIsDone(false);
   };
 
-  // Function to format seconds into a readable MM:SS string
+  const handleClick = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      setRepeatCount(value);
+    }
+  };
+
   const formatTime = (timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
@@ -66,114 +110,248 @@ export default function Player() {
       .padStart(2, "0")}`;
   };
 
+  const handleNextClick = () => {
+    setCurrentRepeat(0);
+    goToNextTrack();
+  };
+
+  const handlePrevClick = () => {
+    setCurrentRepeat(0);
+    setCurrentTrackIndex((prevIndex) => {
+      // Corrected variable name here for clarity
+      const newIndex =
+        (prevIndex - 1 + audioSourceUrl.length) % audioSourceUrl.length;
+      return newIndex;
+    });
+    setPaused(false);
+  };
+  // --- Effects (Kept from previous version) ---
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.addEventListener("ended", handleAudioEnd);
+      return () => {
+        audio.removeEventListener("ended", handleAudioEnd);
+      };
+    }
+  }, [handleAudioEnd]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    const setAudioData = () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      } else {
+        setDuration(0);
+      }
+      setCurrentTime(audio.currentTime);
+    };
+
+    const updateTime = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    audio.addEventListener("loadedmetadata", setAudioData);
+    audio.addEventListener("timeupdate", updateTime);
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      setCurrentTime(0);
+      if (!paused) {
+        audioRef.current
+          .play()
+          .catch((e) => console.error("Error playing after track change:", e));
+      }
+    }
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", setAudioData);
+      audio.removeEventListener("timeupdate", updateTime);
+    };
+  }, [currentTrackIndex, paused]);
+
+  // --- JSX Rendering ---
   return (
-    <div style={{}}>
-      <h4>How to create Music Player UI in ReactJS?</h4>
+    <Box sx={{ p: 3, maxWidth: "70%", margin: "0 auto" }}>
+      <Typography variant="h5" gutterBottom align="center">
+        Quran Audio Player
+      </Typography>
       <Card
-        style={{
-          width: "80%",
+        sx={{
           display: "flex",
-          backgroundColor: "whitesmoke",
-          boxShadow: "4px 4px 4px gray",
+          boxShadow: theme.shadows[10], // Stronger, more prominent shadow
+          borderRadius: 3, // Rounded corners
+          backgroundColor: theme.palette.background.paper, // Use theme background color
+          // The structure is now a horizontal flex container for the main content and album art
         }}
       >
-        <div
-          style={{
+        {/* Left Side: Album Art (New) */}
+        <Box
+          sx={{
+            width: 150,
+            height: "auto",
+            flexShrink: 0,
+            backgroundImage:
+              "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)", // Attractive gradient
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "3px 0 0 3px", // Only round the left corners
+          }}
+        >
+          <Typography
+            variant="h6"
+            color="white"
+            sx={{ p: 2, textAlign: "center" }}
+          >
+            Surah <br /> {currentTrackIndex + 1}
+          </Typography>
+        </Box>
+
+        {/* Right Side: Player Controls and Info */}
+        <Box
+          sx={{
             display: "flex",
             flexDirection: "column",
-            border: "1px solid black",
             width: "100%",
-            padding: "1rem",
+            p: 2,
           }}
         >
           <CardContent
-            style={{
-              flex: "1 0 auto",
-            }}
+            sx={{ flex: "1 0 auto", p: 0, pb: 1, "&:last-child": { pb: 1 } }}
           >
-            <Typography component="h5" variant="h5">
-              Music Title
+            <Typography component="div" variant="h6">
+              Track {currentTrackIndex + 1}
             </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              Singer Name
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              component="div"
+            >
+              Mishary Alafasy
             </Typography>
           </CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {/* Current Time Display */}
-            <div>{formatTime(currentTime)}</div>
 
-            {/* Progress Slider */}
+          {/* Repeat Controls */}
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+            <RepeatIcon sx={{ color: theme.palette.primary.main }} />
+            <Typography variant="body2" sx={{ mr: 1 }}>
+              Set Repeats:
+            </Typography>
+            {[1, 3, 5, 10].map((count) => (
+              <Button
+                key={count}
+                variant={repeatCount === count ? "contained" : "outlined"}
+                value={count}
+                onClick={handleClick}
+                size="small"
+              >
+                {count}
+              </Button>
+            ))}
+            <TextField
+              type="number"
+              size="small"
+              sx={{ width: 60 }}
+              value={repeatCount}
+              onChange={(e) =>
+                setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))
+              }
+            />
+          </Stack>
+
+          {/* Progress Bar and Time */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <Typography variant="caption" sx={{ minWidth: 35 }}>
+              {formatTime(currentTime)}
+            </Typography>
+
             <Slider
               min={0}
-              max={duration || 0} // Use 0 if duration isn't loaded yet
+              max={duration || 0}
               value={currentTime}
-              onChange={(event, newValue) => {
-                // User is dragging the slider, but don't *set* the audio time yet.
-                // You might want a separate state for a "dragged" value if you want
-                // to update the displayed time while dragging without affecting the audio.
-              }}
               onChangeCommitted={(event, newValue) => {
-                // User let go of the slider, now update the audio's currentTime
                 if (audioRef.current) {
                   audioRef.current.currentTime = newValue;
-                  setCurrentTime(newValue); // Update component state as well
+                  setCurrentTime(newValue);
                 }
               }}
               aria-label="Audio progress"
-              sx={{ flexGrow: 1 }}
+              color="primary"
+              sx={{
+                flexGrow: 1,
+                height: 4,
+                "& .MuiSlider-thumb": {
+                  width: 12,
+                  height: 12,
+                  transition: "0.2s",
+                  "&:hover, &.Mui-focusVisible": {
+                    boxShadow: "0 0 0 8px rgba(0,0,0,0.16)",
+                  },
+                },
+              }}
             />
 
-            {/* Duration Display */}
-            <div>{formatTime(duration)}</div>
+            <Typography
+              variant="caption"
+              sx={{ minWidth: 35, textAlign: "right" }}
+            >
+              {formatTime(duration)}
+            </Typography>
           </Box>
-          <div
-            style={{
+
+          {/* Player Controls */}
+          <Box
+            sx={{
               display: "flex",
               alignItems: "center",
-              paddingLeft: 1,
-              paddingBottom: 1,
+              justifyContent: "space-between",
             }}
           >
-            <IconButton aria-label="previous">
-              {useTheme().direction !== "rtl" ? (
-                <SkipPreviousIcon />
-              ) : (
-                <SkipNextIcon />
-              )}
-            </IconButton>
-            <IconButton aria-label="play/pause">
-              {paused ? (
-                <PlayArrowIcon
-                  style={{
-                    height: 38,
-                    width: 38,
-                  }}
-                  onClick={controllPlayPause}
-                />
-              ) : (
-                <PauseIcon
-                  style={{
-                    height: 38,
-                    width: 38,
-                  }}
-                  onClick={controllPlayPause}
-                />
-              )}
-            </IconButton>
-            <IconButton aria-label="next">
-              {useTheme().direction !== "rtl" ? (
-                <SkipNextIcon />
-              ) : (
-                <SkipPreviousIcon />
-              )}
-            </IconButton>
-          </div>
-        </div>
+            <Typography variant="body2" color="text.secondary">
+              Loop:{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {currentRepeat}/{repeatCount}
+              </span>
+            </Typography>
 
-        <audio ref={audioRef} className="audio-element">
-          <source src={audioSourceUrl}></source>
-        </audio>
+            <Box>
+              <IconButton aria-label="previous" onClick={handlePrevClick}>
+                <SkipPreviousIcon />
+              </IconButton>
+              <IconButton
+                aria-label="play/pause"
+                onClick={controllPlayPause}
+                sx={{ mx: 1 }}
+              >
+                {paused ? (
+                  <PlayArrowIcon
+                    sx={{
+                      height: 38,
+                      width: 38,
+                      color: theme.palette.primary.main,
+                    }}
+                  />
+                ) : (
+                  <PauseIcon
+                    sx={{
+                      height: 38,
+                      width: 38,
+                      color: theme.palette.primary.main,
+                    }}
+                  />
+                )}
+              </IconButton>
+              <IconButton aria-label="next" onClick={handleNextClick}>
+                <SkipNextIcon />
+              </IconButton>
+            </Box>
+          </Box>
+        </Box>
+
+        <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
       </Card>
-    </div>
+    </Box>
   );
 }
