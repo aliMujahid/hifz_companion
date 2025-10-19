@@ -5,6 +5,7 @@ import RepeatIcon from "@mui/icons-material/Repeat";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -12,7 +13,6 @@ import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 const surahData = {
@@ -24,7 +24,7 @@ const surahData = {
   revelationType: "Meccan",
 };
 
-export default function Player() {
+export default function Player({ togglePlayerVisibility }) {
   const theme = useTheme();
   const audioSourceUrl = [
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
@@ -34,6 +34,7 @@ export default function Player() {
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/5.mp3",
   ];
 
+  const [open, setOpen] = useState(true);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
@@ -102,6 +103,10 @@ export default function Player() {
 
     setPaused(!paused);
     if (isDone) setIsDone(false);
+  };
+
+  const togglePlayer = () => {
+    setOpen(!open);
   };
 
   const handleClick = (e) => {
@@ -180,29 +185,56 @@ export default function Player() {
   }, [currentTrackIndex, paused]);
 
   return (
-    <Box sx={{ p: 3, maxWidth: "70%", margin: "0 auto" }}>
-      <Typography variant="h5" gutterBottom align="center">
-        Quran Audio Player
-      </Typography>
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: "768px",
+      }}
+    >
       <Card
         sx={{
           display: "flex",
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+          },
           boxShadow: theme.shadows[10],
           backgroundColor: theme.palette.background.paper,
+          position: "relative",
         }}
       >
+        <IconButton
+          aria-label="close"
+          onClick={togglePlayerVisibility}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 1, // Ensure it's above the card content
+            color: theme.palette.text.secondary,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
         <Box
           sx={{
-            width: 150,
+            display: "flex",
+            flexDirection: {
+              xs: "row",
+              sm: "column",
+            },
+            width: {
+              xs: "100%",
+              sm: "25%",
+            },
             height: "auto",
             flexShrink: 0,
             backgroundImage:
               "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
-            display: "flex",
+
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "3px 0 0 3px",
-            flexDirection: "column",
           }}
         >
           <Typography
@@ -235,12 +267,16 @@ export default function Player() {
           sx={{
             display: "flex",
             flexDirection: "column",
-            width: "100%",
             p: 2,
           }}
         >
           <CardContent
-            sx={{ flex: "1 0 auto", p: 0, pb: 1, "&:last-child": { pb: 1 } }}
+            sx={{
+              flex: "1 0 auto",
+              p: 0,
+              pb: 1,
+              "&:last-child": { pb: 1 },
+            }}
           >
             <Typography component="div" variant="h6">
               Ayah {currentTrackIndex}
@@ -255,7 +291,16 @@ export default function Player() {
           </CardContent>
 
           {/* Repeat Controls */}
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+          <Box
+            sx={{
+              maxWidth: "100%",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "1rem",
+              flexDirection: "row",
+              mb: 2,
+            }}
+          >
             <RepeatIcon sx={{ color: theme.palette.primary.main }} />
             <Typography variant="body2" sx={{ mr: 1 }}>
               Set Repeats:
@@ -280,7 +325,7 @@ export default function Player() {
                 setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))
               }
             />
-          </Stack>
+          </Box>
 
           {/* Progress Bar and Time */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>

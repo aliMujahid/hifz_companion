@@ -2,15 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 
-// Example Data (for context)
-const surahData = {
-  index: 18,
-  englishName: "Al-Kahf (The Cave)",
-  arabicName: "الكهف",
-  revelationType: "Meccan",
-};
-
-export default function SurahRow() {
+export default function SurahInfoCard({ surah }) {
   const theme = useTheme();
 
   return (
@@ -20,7 +12,7 @@ export default function SurahRow() {
         alignItems: "stretch", // Crucial: Makes children stretch to fill height
         border: "1px solid #ddd",
         borderRadius: 1,
-        maxWidth: 500,
+        width: "100%",
         margin: "0 auto",
         overflow: "hidden", // Ensures the rounded corners are respected
       }}
@@ -51,7 +43,7 @@ export default function SurahRow() {
             lineHeight: 1.2, // Adjust line height for better appearance
           }}
         >
-          {surahData.revelationType}
+          {surah.revelationType}
         </Typography>
 
         {/* Surah Index */}
@@ -63,7 +55,7 @@ export default function SurahRow() {
             mt: 0.5, // Small margin from revelation type
           }}
         >
-          {surahData.index}
+          {surah.number}
         </Typography>
       </Box>
 
@@ -93,7 +85,7 @@ export default function SurahRow() {
             textOverflow: "ellipsis",
           }}
         >
-          {surahData.englishName}
+          {surah.englishName} ({surah.englishNameTranslation})
         </Typography>
 
         {/* Arabic Name */}
@@ -108,7 +100,7 @@ export default function SurahRow() {
             fontWeight: "medium",
           }}
         >
-          {surahData.arabicName}
+          {surah.name}
         </Typography>
       </Box>
     </Box>
