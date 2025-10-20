@@ -81,9 +81,11 @@ const JuzNumberBox = styled(Box)(({ theme, selected }) => ({
 }));
 
 export default function JuzPage() {
-  const [selectedJuz, setSelectedJuz] = useState(null);
-  const [numberOfAyahs, setNumberOfAyahs] = useState(0);
-  const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
+  const [selectedJuz, setSelectedJuz] = useState(0);
+  const [numberOfAyahs, setNumberOfAyahs] = useState(JUZ[0].totalAyahs);
+  const [ayahNumberFirst, setAyahNumberFirst] = useState(
+    JUZ[0].ayahNumberFirst
+  );
   const [juzData, setJuzdata] = useState(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
 
@@ -206,28 +208,28 @@ export default function JuzPage() {
       )}
 
       {/* Player component fixed at the bottom */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: isPlayerVisible ? 0 : -500,
-          left: 0,
-          right: 0,
-          zIndex: 1300,
-          p: 1,
-          width: "100%",
-          boxSizing: "border-box",
-          transition: "bottom 0.3s ease-in-out",
-        }}
-      >
-        {juzData && (
+      {juzData && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: isPlayerVisible ? 0 : -500,
+            left: 0,
+            right: 0,
+            zIndex: 1300,
+            p: 1,
+            width: "100%",
+            boxSizing: "border-box",
+            transition: "bottom 0.3s ease-in-out",
+          }}
+        >
           <Player
             surahData={juzData}
             ayahNumberFirst={ayahNumberFirst}
             totalAyah={numberOfAyahs}
             togglePlayerVisibility={togglePlayerVisibility}
           />
-        )}
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 }
