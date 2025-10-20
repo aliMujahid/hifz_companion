@@ -979,7 +979,7 @@ export default function SurahPage() {
           p: 2,
           maxWidth: 500,
           margin: "0 auto",
-          mb: isPlayerVisible ? 50 : 2,
+          mb: isPlayerVisible ? 60 : 2,
         }}
       >
         <Typography variant="h4" component="h1" gutterBottom align="center">
