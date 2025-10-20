@@ -20,6 +20,8 @@ export default function Player({
   togglePlayerVisibility,
   ayahNumberFirst,
   totalAyah,
+  skipToPrevSurah,
+  skipToNextSurah,
 }) {
   const theme = useTheme();
   const audioSourceUrl = [
@@ -285,33 +287,73 @@ export default function Player({
               "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
 
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
             borderRadius: "3px 0 0 3px",
+            position: "relative",
+            p: 1,
           }}
         >
-          <Typography
-            variant="h6"
-            color="white"
-            sx={{ p: 2, textAlign: "center" }}
+          {/* Previous Surah Button (Left side of the left box) */}
+          <IconButton
+            aria-label="previous surah"
+            onClick={skipToPrevSurah}
+            sx={{
+              color: "rgba(255, 255, 255, 0.8)",
+              p: { xs: 1, sm: 2 },
+            }}
           >
-            {surahData.englishName}
-          </Typography>
+            <SkipPreviousIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />
+          </IconButton>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: {
+                xs: "row",
+                sm: "column",
+              },
+              flexGrow: 1,
+              textAlign: "center",
 
-          <Typography
-            variant="h6"
-            color="white"
-            sx={{ p: 2, textAlign: "center", fontFamily: "AlQalam" }}
-            dir="rtl"
+              justifyContent: "center",
+              alignItems: "center",
+              mx: { xs: 1, sm: 0 },
+            }}
           >
-            {surahData.name}
-          </Typography>
-          <Typography
-            variant="h6"
-            color="white"
-            sx={{ p: 2, textAlign: "center" }}
+            <Typography
+              variant="h6"
+              color="white"
+              sx={{ p: 2, textAlign: "center" }}
+            >
+              {surahData.englishName}
+            </Typography>
+            <Typography
+              variant="h6"
+              color="white"
+              sx={{ p: 2, textAlign: "center", fontFamily: "AlQalam" }}
+              dir="rtl"
+            >
+              {surahData.name}
+            </Typography>
+            <Typography
+              variant="h6"
+              color="white"
+              sx={{ p: 2, textAlign: "center" }}
+            >
+              {surahData.number}
+            </Typography>
+          </Box>
+          {/* Next Surah Button (Right side of the left box) */}
+          <IconButton
+            aria-label="next surah"
+            onClick={skipToNextSurah}
+            sx={{
+              color: "rgba(255, 255, 255, 0.8)",
+              p: { xs: 1, sm: 2 },
+              mr: 6,
+            }}
           >
-            {surahData.number}
-          </Typography>
+            <SkipNextIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />
+          </IconButton>
         </Box>
 
         {/* Right Side: Player Controls and Info */}

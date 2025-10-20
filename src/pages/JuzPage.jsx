@@ -31,6 +31,8 @@ const JUZ = [
   { ayahNumberFirst: 5673, totalAyahs: 564 },
 ];
 
+const totalJuzs = 30 - 1; //offset by -1 for indexing
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
@@ -88,6 +90,26 @@ export default function JuzPage() {
   );
   const [juzData, setJuzdata] = useState(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+
+  const handleJuzChange = (newJuzNumber) => {
+    let finalJuzNumber = newJuzNumber;
+
+    if (newJuzNumber < 0) {
+      finalJuzNumber = totalJuzs; // Loop back to the last Juz
+    } else if (newJuzNumber > totalJuzs) {
+      finalJuzNumber = 0; // Loop back to the first Juz
+    }
+    setSelectedJuz(finalJuzNumber);
+
+    const newJuzData = JUZ[finalJuzNumber];
+    if (newJuzData) {
+      setAyahNumberFirst(newJuzData.ayahNumberFirst);
+      setNumberOfAyahs(newJuzData.totalAyahs);
+    }
+  };
+
+  const skipToPrevJuz = () => handleJuzChange(selectedJuz - 1);
+  const skipToNextJuz = () => handleJuzChange(selectedJuz + 1);
 
   const togglePlayerVisibility = () => {
     setIsPlayerVisible(!isPlayerVisible);
@@ -227,6 +249,8 @@ export default function JuzPage() {
             ayahNumberFirst={ayahNumberFirst}
             totalAyah={numberOfAyahs}
             togglePlayerVisibility={togglePlayerVisibility}
+            skipToPrevSurah={skipToPrevJuz}
+            skipToNextSurah={skipToNextJuz}
           />
         </Box>
       )}

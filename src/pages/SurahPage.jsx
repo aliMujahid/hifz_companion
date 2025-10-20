@@ -922,18 +922,36 @@ const data = [
   },
 ];
 
+const totalSurahs = 114;
+
 export default function SurahPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+  const [selectedSurah, setSelectedSurah] = useState(1);
+  const [numberOfAyahs, setNumberOfAyahs] = useState(7);
+  const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
 
   const togglePlayerVisibility = () => {
     setIsPlayerVisible(!isPlayerVisible);
   };
 
-  const [selectedSurah, setSelectedSurah] = useState(1);
-  const [numberOfAyahs, setNumberOfAyahs] = useState(7);
-  const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
+  const handleSurahChange = (newSurahNumber) => {
+    let finalSurahNumber = newSurahNumber;
+
+    if (newSurahNumber < 1) {
+      finalSurahNumber = totalSurahs; // Loop back to the last Surah
+    } else if (newSurahNumber > totalSurahs) {
+      finalSurahNumber = 1; // Loop back to the first Surah
+    }
+    setSelectedSurah(finalSurahNumber);
+
+    const newSurahData = data[finalSurahNumber - 1];
+    if (newSurahData) {
+      setNumberOfAyahs(newSurahData.numberOfAyahs);
+    }
+  };
+
+  const skipToPrevSurah = () => handleSurahChange(selectedSurah - 1);
+  const skipToNextSurah = () => handleSurahChange(selectedSurah + 1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -949,9 +967,6 @@ export default function SurahPage() {
         setAyahNumberFirst(result.data.number);
       } catch (e) {
         console.error("Fetch error:", e.message);
-        setErrorSurah(e);
-      } finally {
-        setIsSurahLoading(false);
       }
     };
     fetchData();
@@ -1034,6 +1049,8 @@ export default function SurahPage() {
             togglePlayerVisibility={togglePlayerVisibility}
             ayahNumberFirst={ayahNumberFirst}
             totalAyah={numberOfAyahs}
+            skipToPrevSurah={skipToPrevSurah}
+            skipToNextSurah={skipToNextSurah}
           />
         )}
       </Box>
