@@ -49,6 +49,8 @@ export default function Player({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const [internalTrackIndex, setInternalTrackIndex] = useState(0);
+
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
@@ -102,6 +104,45 @@ export default function Player({
       audioRef.current.currentTime = 0;
     }
   }, [ayahNumberFirst]); // Trigger when a new Surah is selected
+
+  const commitTrackChange = (value) => {
+    const totalTracks = audioSourceUrl.length;
+    const valueNum = parseInt(value, 10);
+
+    if (isNaN(valueNum)) {
+      setInternalTrackIndex(currentTrackIndex); // Revert to current on invalid
+      return;
+    }
+
+    const newTrackIndex = Math.min(Math.max(0, valueNum), totalTracks - 1);
+
+    if (newTrackIndex !== currentTrackIndex) {
+      setCurrentTrackIndex(newTrackIndex);
+      setPaused(false);
+      setCurrentRepeat(0);
+    } else {
+      setInternalTrackIndex(currentTrackIndex);
+    }
+  };
+
+  const handleTrackIndexBlur = () => {
+    commitTrackChange(internalTrackIndex);
+  };
+
+  const handleTrackIndexKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitTrackChange(e.target.value);
+
+      e.target.blur();
+    }
+  };
+
+  const handleInternalTrackIndexChange = (e) => {
+    // Allow typing only numbers
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    setInternalTrackIndex(value);
+  };
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
@@ -300,7 +341,40 @@ export default function Player({
               Mishary Alafasy
             </Typography>
           </CardContent>
-
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mb: 2,
+            }}
+          >
+            <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+              Go to Ayah (Track):
+            </Typography>
+            <TextField
+              type="text" // Use 'text' to prevent browser up/down arrows from changing state immediately
+              size="small"
+              sx={{ width: 60 }}
+              // Use internal state for the field value
+              value={internalTrackIndex}
+              // Update internal state on change
+              onChange={handleInternalTrackIndexChange}
+              // Commit the change on defocus
+              onBlur={handleTrackIndexBlur}
+              // Commit the change on Enter key press
+              onKeyDown={handleTrackIndexKeyDown}
+              inputProps={{
+                min: 0,
+                max: audioSourceUrl.length - 1,
+                // Add an aria-label for accessibility
+                "aria-label": "Go to Ayah Number",
+              }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              (Max: {audioSourceUrl.length - 1})
+            </Typography>
+          </Box>
           {/* Repeat Controls */}
           <Box
             sx={{
