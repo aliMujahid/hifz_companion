@@ -70,7 +70,14 @@ export default function SurahPage() {
 
   return (
     <Box>
-      <Box sx={{ p: 2, maxWidth: 500, margin: "0 auto" }}>
+      <Box
+        sx={{
+          p: 2,
+          maxWidth: 500,
+          margin: "0 auto",
+          mb: isPlayerVisible ? 50 : 2,
+        }}
+      >
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Surah
         </Typography>
