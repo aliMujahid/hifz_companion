@@ -66,6 +66,7 @@ export default function SurahPage() {
       }
     };
     fetchData();
+    setIsPlayerVisible(true);
   }, [selectedSurah]);
 
   return (
