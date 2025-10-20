@@ -16,6 +16,9 @@ export default function SurahInfoCard({ surah, onSurahCardClick }) {
         width: "100%",
         margin: "0 auto",
         overflow: "hidden", // Ensures the rounded corners are respected
+        "&:hover": {
+          cursor: "pointer",
+        },
       }}
     >
       {/* -------------------- LEFT SECTION: Revelation Type & Surah Index -------------------- */}
