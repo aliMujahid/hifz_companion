@@ -26,7 +26,12 @@ export default function Player({
     "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
   ];
 
-  for (let index = 0; index <= totalAyah; index++) {
+  let index = 0;
+  if (ayahNumberFirst == 1) {
+    index++;
+  } // bismillah is already in the source list
+
+  for (index; index < totalAyah; index++) {
     audioSourceUrl.push(
       `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${
         ayahNumberFirst + index
@@ -34,7 +39,6 @@ export default function Player({
     );
   }
 
-  const [open, setOpen] = useState(true);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
@@ -45,7 +49,6 @@ export default function Player({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // --- Utility Functions (Kept from previous version) ---
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
@@ -115,10 +118,6 @@ export default function Player({
 
     setPaused(!paused);
     if (isDone) setIsDone(false);
-  };
-
-  const togglePlayer = () => {
-    setOpen(!open);
   };
 
   const handleClick = (e) => {
@@ -194,7 +193,7 @@ export default function Player({
       audio.removeEventListener("loadedmetadata", setAudioData);
       audio.removeEventListener("timeupdate", updateTime);
     };
-  }, [currentTrackIndex, paused]);
+  }, [currentTrackIndex]);
 
   return (
     <Box

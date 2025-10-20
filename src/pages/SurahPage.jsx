@@ -43,7 +43,7 @@ export default function SurahPage() {
 
   const [selectedSurah, setSelectedSurah] = useState(1);
   const [numberOfAyahs, setNumberOfAyahs] = useState(7);
-  const [ayahNumberFirst, setAyahNumberFirst] = useState(1);
+  const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
   const [isSurahLoading, setIsSurahLoading] = useState(true);
   const [errorSurah, setErrorSurah] = useState(null);
   useEffect(() => {
