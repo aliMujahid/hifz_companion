@@ -926,7 +926,7 @@ const data = [
 const totalSurahs = 114;
 
 export default function SurahPage() {
-  const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const playerBoxRef = useRef(null);
   const playButtonRef = useRef(null);
   const [selectedSurah, setSelectedSurah] = useState(1);

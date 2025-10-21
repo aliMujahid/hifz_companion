@@ -88,7 +88,7 @@ export default function JuzPage() {
     JUZ[0].ayahNumberFirst
   );
   const [juzData, setJuzdata] = useState(null);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
 
   const handleJuzChange = (newJuzNumber) => {
     let finalJuzNumber = newJuzNumber;
