@@ -14,6 +14,7 @@ import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useState, useRef, useEffect, useCallback } from "react";
+import RepeatCountField from "./playerComponents/RepeatCountField";
 
 export default function Player({
   surahData,
@@ -43,7 +44,6 @@ export default function Player({
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
-  const [internalRepeatCount, setInternalRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
@@ -158,43 +158,6 @@ export default function Player({
     // Allow typing only numbers
     const value = e.target.value.replace(/[^0-9]/g, "");
     setInternalTrackIndex(value);
-  };
-
-  const commitRepeatCount = (value) => {
-    const valueNum = parseInt(value, 10);
-
-    if (isNaN(valueNum)) {
-      setInternalRepeatCount(currentRepeat); // Revert to current on invalid
-      return;
-    }
-
-    const newRepeatCount = Math.max(0, valueNum);
-
-    if (newRepeatCount !== currentRepeat) {
-      setRepeatCount(newRepeatCount);
-      setPaused(false);
-    } else {
-      setInternalRepeatCount(currentRepeat);
-    }
-  };
-
-  const handleRepeatCountBlur = () => {
-    commitRepeatCount(internalRepeatCount);
-  };
-
-  const handleRepeatCountKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commitRepeatCount(e.target.value);
-
-      e.target.blur();
-    }
-  };
-
-  const handleInternalRepeatCountChange = (e) => {
-    // Allow typing only numbers
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setInternalRepeatCount(value);
   };
 
   const controllPlayPause = () => {
@@ -501,14 +464,10 @@ export default function Player({
                 {count}
               </Button>
             ))}
-            <TextField
-              type="number"
-              size="small"
-              sx={{ width: 60 }}
-              value={internalRepeatCount}
-              onChange={handleInternalRepeatCountChange}
-              onBlur={handleRepeatCountBlur}
-              onKeyDown={handleRepeatCountKeyDown}
+            <RepeatCountField
+              currentRepeat={currentRepeat}
+              setRepeatCount={setRepeatCount}
+              repeatCount={repeatCount}
             />
           </Box>
 
