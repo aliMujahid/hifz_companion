@@ -69,6 +69,10 @@ export default function Player({
 
   const handleAudioEnd = useCallback(() => {
     if (paused) return;
+    if (currentTrackIndex === 0) {
+      goToNextTrack();
+      return;
+    }
 
     const nextRepeat = currentRepeat + 1;
     setCurrentRepeat(nextRepeat);
