@@ -7,7 +7,14 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
 
   return (
     <Box
+      tabIndex={0}
       onClick={onSurahCardClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          onSurahCardClick();
+          event.preventDefault(); // Prevent default scroll/action
+        }
+      }}
       sx={{
         display: "flex",
         alignItems: "stretch",
