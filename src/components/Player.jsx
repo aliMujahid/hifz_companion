@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
@@ -46,6 +47,7 @@ export default function Player({
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
+  const [loop, setLoop] = useState(false);
   const audioRef = useRef(null);
 
   const [currentTime, setCurrentTime] = useState(0);
@@ -53,6 +55,10 @@ export default function Player({
 
   const [internalTrackIndex, setInternalTrackIndex] = useState(0);
 
+  const toggleLoop = () => {
+    setLoop(!loop);
+    console.log(`Loop is ${loop ? "on" : "off"} now.`);
+  };
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
@@ -81,8 +87,12 @@ export default function Player({
         setCurrentRepeat(0);
         goToNextTrack();
       } else {
-        setPaused(true);
-        setIsDone(true);
+        if (loop) {
+          goToNextTrack();
+        } else {
+          setPaused(true);
+          setIsDone(true);
+        }
         setCurrentRepeat(0);
       }
     }
@@ -93,6 +103,7 @@ export default function Player({
     currentTrackIndex,
     audioSourceUrl.length,
     goToNextTrack,
+    loop,
   ]);
 
   useEffect(() => {
@@ -406,15 +417,23 @@ export default function Player({
               onBlur={handleTrackIndexBlur}
               // Commit the change on Enter key press
               onKeyDown={handleTrackIndexKeyDown}
-              inputProps={{
-                min: 0,
-                max: audioSourceUrl.length - 1,
-                // Add an aria-label for accessibility
-                "aria-label": "Go to Ayah Number",
+              slotProps={{
+                input: {
+                  min: 0,
+                  max: audioSourceUrl.length - 1,
+                  // Add an aria-label for accessibility
+                  "aria-label": "Go to Ayah Number",
+                },
               }}
             />
             <Typography variant="body2" color="text.secondary">
-              (Max: {audioSourceUrl.length - 1})
+              (Total Ayahs: {audioSourceUrl.length - 1})
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Repeat:{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {currentRepeat + 1}/{repeatCount}
+              </span>
             </Typography>
           </Box>
           {/* Repeat Controls */}
@@ -428,7 +447,7 @@ export default function Player({
               mb: 2,
             }}
           >
-            <RepeatIcon sx={{ color: theme.palette.primary.main }} />
+            {/* <RepeatIcon sx={{ color: theme.palette.primary.main }} /> */}
             <Typography variant="body2" sx={{ mr: 1 }}>
               Set Repeats:
             </Typography>
@@ -502,13 +521,6 @@ export default function Player({
               justifyContent: "space-between",
             }}
           >
-            <Typography variant="body2" color="text.secondary">
-              Loop:{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {currentRepeat}/{repeatCount}
-              </span>
-            </Typography>
-
             <Box>
               <IconButton aria-label="previous" onClick={handlePrevClick}>
                 <SkipPreviousIcon />
@@ -540,6 +552,21 @@ export default function Player({
                 <SkipNextIcon />
               </IconButton>
             </Box>
+            <IconButton
+              onClick={toggleLoop}
+              aria-label="Toggle playlist loop"
+              color={loop ? "primary" : "inherit"}
+              sx={{
+                border: loop
+                  ? `2px solid ${theme.palette.primary.main}`
+                  : "2px solid transparent",
+                borderRadius: "50%",
+                p: "8px",
+                transition: "border 0.2s",
+              }}
+            >
+              <AllInclusiveIcon />
+            </IconButton>
           </Box>
         </Box>
 
