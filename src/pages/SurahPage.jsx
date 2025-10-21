@@ -926,6 +926,7 @@ const totalSurahs = 114;
 
 export default function SurahPage() {
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
+  const playerBoxRef = useRef(null);
   const [selectedSurah, setSelectedSurah] = useState(1);
   const [numberOfAyahs, setNumberOfAyahs] = useState(7);
   const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
@@ -933,6 +934,13 @@ export default function SurahPage() {
   const togglePlayerVisibility = () => {
     setIsPlayerVisible(!isPlayerVisible);
   };
+
+  useEffect(() => {
+    // When the player becomes visible
+    if (isPlayerVisible && playerBoxRef.current) {
+      playerBoxRef.current.focus();
+    }
+  }, [isPlayerVisible]);
 
   const handleSurahChange = (newSurahNumber) => {
     let finalSurahNumber = newSurahNumber;
@@ -1025,13 +1033,21 @@ export default function SurahPage() {
               bgcolor: "background.paper",
               boxShadow: 5,
               "&:hover": { bgcolor: "primary.light" },
+              "&:focus-visible": {
+                outline: `4px solid ${theme.palette.primary.main}`, // Use a primary color outline
+                outlineOffset: "2px", // Add space between button edge and outline
+                boxShadow: theme.shadows[8], // Optionally increase shadow for distinction
+              },
             }}
+            aria-label="Show Audio Player"
           >
             <PlayCircleFilledIcon fontSize="large" />
           </IconButton>
         </Box>
       )}
       <Box
+        ref={playerBoxRef}
+        tabIndex={-1}
         sx={{
           position: "fixed",
           bottom: isPlayerVisible ? 0 : -500,
