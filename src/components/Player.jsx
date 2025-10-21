@@ -394,7 +394,7 @@ export default function Player({
               color="text.secondary"
               component="div"
             >
-              Mishary Alafasy
+              Abdur-Rahman As-Sudaisi
             </Typography>
           </CardContent>
           <Box
@@ -406,7 +406,7 @@ export default function Player({
             }}
           >
             <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-              Go to Ayah (Track):
+              Go to Ayah:
             </Typography>
             <TextField
               type="text" // Use 'text' to prevent browser up/down arrows from changing state immediately
@@ -430,7 +430,7 @@ export default function Player({
               }}
             />
             <Typography variant="body2" color="text.secondary">
-              (Total Ayahs: {audioSourceUrl.length - 1})
+              (Total: {audioSourceUrl.length - 1})
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Repeat:{" "}
