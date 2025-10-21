@@ -34,11 +34,10 @@ const JUZ = [
 const totalJuzs = 30 - 1; //offset by -1 for indexing
 
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import Container from "@mui/material/Container";
 import { useEffect, useState } from "react";
 import Player from "../components/Player";
@@ -224,7 +223,7 @@ export default function JuzPage() {
               "&:hover": { bgcolor: "primary.light" },
             }}
           >
-            <PlayCircleFilledIcon fontSize="large" />
+            <KeyboardDoubleArrowUpIcon fontSize="large" />
           </IconButton>
         </Box>
       )}

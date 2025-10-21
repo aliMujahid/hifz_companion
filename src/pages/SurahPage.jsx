@@ -2,7 +2,7 @@ import SurahInfoCard from "../components/SurahInfoCard";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import Typography from "@mui/material/Typography";
 import Player from "../components/Player";
 import { useEffect, useState, useRef } from "react";
@@ -1048,7 +1048,7 @@ export default function SurahPage() {
             }}
             aria-label="Show Audio Player"
           >
-            <PlayCircleFilledIcon fontSize="large" />
+            <KeyboardDoubleArrowUpIcon fontSize="large" />
           </IconButton>
         </Box>
       )}
