@@ -2,20 +2,20 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 
-export default function SurahInfoCard({ surah, onSurahCardClick }) {
+export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
   const theme = useTheme();
 
   return (
     <Box
       onClick={onSurahCardClick}
       sx={{
-        display: "flex", // Main container is a flexbox
-        alignItems: "stretch", // Crucial: Makes children stretch to fill height
-        border: "1px solid #ddd",
+        display: "flex",
+        alignItems: "stretch",
+        border: `1px solid ${selected ? theme.palette.primary.light : "#ddd"}`,
         borderRadius: 1,
         width: "100%",
         margin: "0 auto",
-        overflow: "hidden", // Ensures the rounded corners are respected
+        overflow: "hidden",
         "&:hover": {
           cursor: "pointer",
         },
@@ -25,7 +25,10 @@ export default function SurahInfoCard({ surah, onSurahCardClick }) {
       <Box
         sx={{
           // Gradient background for the entire left section
-          backgroundImage: "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
+          backgroundImage: selected
+            ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+            : "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
+
           color: theme.palette.common.white,
           display: "flex",
           flexDirection: "column", // Stack contents vertically

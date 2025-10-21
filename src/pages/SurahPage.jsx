@@ -1002,6 +1002,7 @@ export default function SurahPage() {
               }}
               key={surah.number}
               surah={surah}
+              selected={selectedSurah === surah.number}
             />
           ))}
         </Stack>
