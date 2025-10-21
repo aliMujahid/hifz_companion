@@ -23,7 +23,6 @@ export default function RepeatCountField({
 
     if (newRepeatCount !== currentRepeat) {
       setRepeatCount(newRepeatCount);
-      setPaused(false);
     } else {
       setInternalRepeatCount(currentRepeat);
     }

@@ -26,7 +26,7 @@ export default function Player({
 }) {
   const theme = useTheme();
   const audioSourceUrl = [
-    "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3",
+    "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3",
   ];
 
   let index = 0;
@@ -36,7 +36,7 @@ export default function Player({
 
   for (index; index < totalAyah; index++) {
     audioSourceUrl.push(
-      `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${
+      `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${
         ayahNumberFirst + index
       }.mp3`
     );
