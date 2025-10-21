@@ -5,7 +5,8 @@ import IconButton from "@mui/material/IconButton";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import Typography from "@mui/material/Typography";
 import Player from "../components/Player";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useTheme } from "@mui/material/styles";
 
 const data = [
   {
@@ -927,9 +928,11 @@ const totalSurahs = 114;
 export default function SurahPage() {
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
   const playerBoxRef = useRef(null);
+  const playButtonRef = useRef(null);
   const [selectedSurah, setSelectedSurah] = useState(1);
   const [numberOfAyahs, setNumberOfAyahs] = useState(7);
   const [ayahNumberFirst, setAyahNumberFirst] = useState(0);
+  const theme = useTheme();
 
   const togglePlayerVisibility = () => {
     setIsPlayerVisible(!isPlayerVisible);
@@ -939,6 +942,9 @@ export default function SurahPage() {
     // When the player becomes visible
     if (isPlayerVisible && playerBoxRef.current) {
       playerBoxRef.current.focus();
+    }
+    if (!isPlayerVisible && playButtonRef.current) {
+      playButtonRef.current.focus();
     }
   }, [isPlayerVisible]);
 
@@ -1029,6 +1035,7 @@ export default function SurahPage() {
           <IconButton
             color="primary"
             onClick={togglePlayerVisibility}
+            ref={playButtonRef}
             sx={{
               bgcolor: "background.paper",
               boxShadow: 5,
@@ -1058,6 +1065,8 @@ export default function SurahPage() {
           width: "100%",
           transition: "bottom 0.3s ease-in-out",
           boxSizing: "border-box",
+          pointerEvents: isPlayerVisible ? "auto" : "none",
+          visibility: isPlayerVisible ? "visible" : "hidden",
         }}
       >
         {data && (
