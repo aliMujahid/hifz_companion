@@ -57,7 +57,6 @@ export default function Player({
 
   const toggleLoop = () => {
     setLoop(!loop);
-    console.log(`Loop is ${loop ? "on" : "off"} now.`);
   };
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
