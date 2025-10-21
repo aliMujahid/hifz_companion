@@ -5,10 +5,9 @@ import RepeatIcon from "@mui/icons-material/Repeat";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
@@ -44,6 +43,7 @@ export default function Player({
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
+  const [internalRepeatCount, setInternalRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
@@ -158,6 +158,43 @@ export default function Player({
     // Allow typing only numbers
     const value = e.target.value.replace(/[^0-9]/g, "");
     setInternalTrackIndex(value);
+  };
+
+  const commitRepeatCount = (value) => {
+    const valueNum = parseInt(value, 10);
+
+    if (isNaN(valueNum)) {
+      setInternalRepeatCount(currentRepeat); // Revert to current on invalid
+      return;
+    }
+
+    const newRepeatCount = Math.max(0, valueNum);
+
+    if (newRepeatCount !== currentRepeat) {
+      setRepeatCount(newRepeatCount);
+      setPaused(false);
+    } else {
+      setInternalRepeatCount(currentRepeat);
+    }
+  };
+
+  const handleRepeatCountBlur = () => {
+    commitRepeatCount(internalRepeatCount);
+  };
+
+  const handleRepeatCountKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitRepeatCount(e.target.value);
+
+      e.target.blur();
+    }
+  };
+
+  const handleInternalRepeatCountChange = (e) => {
+    // Allow typing only numbers
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    setInternalRepeatCount(value);
   };
 
   const controllPlayPause = () => {
@@ -282,7 +319,7 @@ export default function Player({
             color: theme.palette.text.secondary,
           }}
         >
-          <CloseIcon />
+          <KeyboardDoubleArrowDownIcon />
         </IconButton>
         <Box
           sx={{
@@ -450,7 +487,6 @@ export default function Player({
               mb: 2,
             }}
           >
-            {/* <RepeatIcon sx={{ color: theme.palette.primary.main }} /> */}
             <Typography variant="body2" sx={{ mr: 1 }}>
               Set Repeats:
             </Typography>
@@ -469,10 +505,10 @@ export default function Player({
               type="number"
               size="small"
               sx={{ width: 60 }}
-              value={repeatCount}
-              onChange={(e) =>
-                setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))
-              }
+              value={internalRepeatCount}
+              onChange={handleInternalRepeatCountChange}
+              onBlur={handleRepeatCountBlur}
+              onKeyDown={handleRepeatCountKeyDown}
             />
           </Box>
 
@@ -568,7 +604,7 @@ export default function Player({
                 transition: "border 0.2s",
               }}
             >
-              <AllInclusiveIcon />
+              <RepeatIcon />
             </IconButton>
           </Box>
         </Box>
