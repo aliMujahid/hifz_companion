@@ -20,9 +20,10 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
         alignItems: "stretch",
         border: `1px solid ${selected ? theme.palette.primary.light : "#ddd"}`,
         borderRadius: 1,
-        width: "100%",
+        width: "6rem",
         margin: "0 auto",
         overflow: "hidden",
+        position: "relative",
         "&:hover": {
           cursor: "pointer",
         },
@@ -31,42 +32,25 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
       {/* -------------------- LEFT SECTION: Revelation Type & Surah Index -------------------- */}
       <Box
         sx={{
-          // Gradient background for the entire left section
-          backgroundImage: selected
-            ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
-            : "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
+          position: "absolute",
+          top: 0,
+          right: 0,
 
+          backgroundImage: selected
+            ? `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+            : "linear-gradient(45deg, #00C4AA 0%, #00A152 100%)",
           color: theme.palette.common.white,
-          display: "flex",
-          flexDirection: "column", // Stack contents vertically
-          alignItems: "center",
-          justifyContent: "center", // Center content vertically
-          px: 2, // Horizontal padding for text
-          py: 1.5, // Vertical padding
-          flexShrink: 0, // Prevent this section from shrinking
-          minWidth: 90, // Give it a fixed minimum width
-          textAlign: "center",
+          borderBottomLeftRadius: 8, // Rounded corner on the inner side
+          px: 1,
+          py: 0.5,
+          zIndex: 1, // Ensure it sits above the title content
         }}
       >
-        {/* Revelation Type */}
         <Typography
-          variant="caption"
-          sx={{
-            textTransform: "uppercase",
-            fontWeight: "medium",
-            lineHeight: 1.2, // Adjust line height for better appearance
-          }}
-        >
-          {surah.revelationType}
-        </Typography>
-
-        {/* Surah Index */}
-        <Typography
-          variant="h4" // Larger for hierarchy
+          variant="caption" // Smaller variant for a badge/index look
           sx={{
             fontWeight: "extrabold",
-            lineHeight: 1, // Keep tight to its text
-            mt: 0.5, // Small margin from revelation type
+            lineHeight: 1,
           }}
         >
           {surah.number}
@@ -80,28 +64,11 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
           display: "flex",
           flexDirection: "column", // Stack titles vertically
           justifyContent: "center", // Center titles vertically
-          px: 2, // Horizontal padding for titles
+          px: 1, // Horizontal padding for titles
           py: 1.5, // Vertical padding
-          // Add a left border to separate from the colored section (optional)
-          // borderLeft: `1px solid ${theme.palette.divider}`,
+          paddingRight: 1.5,
         }}
       >
-        {/* English Name */}
-        <Typography
-          className="englishTitle"
-          variant="subtitle1"
-          sx={{
-            textAlign: "left", // Aligns to the left within its container
-            fontWeight: "bold",
-            mb: 0.5, // Space between titles
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {surah.englishName} ({surah.englishNameTranslation})
-        </Typography>
-
         {/* Arabic Name */}
         <Typography
           fontFamily="AlQalam"
@@ -110,7 +77,7 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
           className="arabicTitle"
           sx={{
             textAlign: "left", // Aligns to the left within its container
-            color: "text.secondary", // Use secondary for Arabic to create contrast
+            color: "text.primary", // Use secondary for Arabic to create contrast
             fontWeight: "medium",
           }}
         >

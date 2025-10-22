@@ -1,5 +1,5 @@
 import SurahInfoCard from "../components/SurahInfoCard";
-import Stack from "@mui/material/Stack";
+import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
@@ -7,11 +7,12 @@ import Typography from "@mui/material/Typography";
 import Player from "../components/Player";
 import { useEffect, useState, useRef } from "react";
 import { useTheme } from "@mui/material/styles";
+import Container from "@mui/material/Container";
 
 const data = [
   {
     number: 1,
-    name: "سُورَةُ ٱلْفَاتِحَةِ",
+    name: "ٱلْفَاتِحَةِ",
     englishName: "Al-Faatiha",
     englishNameTranslation: "The Opening",
     numberOfAyahs: 7,
@@ -19,7 +20,7 @@ const data = [
   },
   {
     number: 2,
-    name: "سُورَةُ البَقَرَةِ",
+    name: "البَقَرَةِ",
     englishName: "Al-Baqara",
     englishNameTranslation: "The Cow",
     numberOfAyahs: 286,
@@ -27,7 +28,7 @@ const data = [
   },
   {
     number: 3,
-    name: "سُورَةُ آلِ عِمۡرَانَ",
+    name: "آلِ عِمۡرَانَ",
     englishName: "Aal-i-Imraan",
     englishNameTranslation: "The Family of Imraan",
     numberOfAyahs: 200,
@@ -35,7 +36,7 @@ const data = [
   },
   {
     number: 4,
-    name: "سُورَةُ النِّسَاءِ",
+    name: "النِّسَاءِ",
     englishName: "An-Nisaa",
     englishNameTranslation: "The Women",
     numberOfAyahs: 176,
@@ -43,7 +44,7 @@ const data = [
   },
   {
     number: 5,
-    name: "سُورَةُ المَائـِدَةِ",
+    name: "المَائـِدَةِ",
     englishName: "Al-Maaida",
     englishNameTranslation: "The Table",
     numberOfAyahs: 120,
@@ -51,7 +52,7 @@ const data = [
   },
   {
     number: 6,
-    name: "سُورَةُ الأَنۡعَامِ",
+    name: "الأَنۡعَامِ",
     englishName: "Al-An'aam",
     englishNameTranslation: "The Cattle",
     numberOfAyahs: 165,
@@ -59,7 +60,7 @@ const data = [
   },
   {
     number: 7,
-    name: "سُورَةُ الأَعۡرَافِ",
+    name: "الأَعۡرَافِ",
     englishName: "Al-A'raaf",
     englishNameTranslation: "The Heights",
     numberOfAyahs: 206,
@@ -67,7 +68,7 @@ const data = [
   },
   {
     number: 8,
-    name: "سُورَةُ الأَنفَالِ",
+    name: "الأَنفَالِ",
     englishName: "Al-Anfaal",
     englishNameTranslation: "The Spoils of War",
     numberOfAyahs: 75,
@@ -75,7 +76,7 @@ const data = [
   },
   {
     number: 9,
-    name: "سُورَةُ التَّوۡبَةِ",
+    name: "التَّوۡبَةِ",
     englishName: "At-Tawba",
     englishNameTranslation: "The Repentance",
     numberOfAyahs: 129,
@@ -83,7 +84,7 @@ const data = [
   },
   {
     number: 10,
-    name: "سُورَةُ يُونُسَ",
+    name: "يُونُسَ",
     englishName: "Yunus",
     englishNameTranslation: "Jonas",
     numberOfAyahs: 109,
@@ -91,7 +92,7 @@ const data = [
   },
   {
     number: 11,
-    name: "سُورَةُ هُودٍ",
+    name: "هُودٍ",
     englishName: "Hud",
     englishNameTranslation: "Hud",
     numberOfAyahs: 123,
@@ -99,7 +100,7 @@ const data = [
   },
   {
     number: 12,
-    name: "سُورَةُ يُوسُفَ",
+    name: "يُوسُفَ",
     englishName: "Yusuf",
     englishNameTranslation: "Joseph",
     numberOfAyahs: 111,
@@ -107,7 +108,7 @@ const data = [
   },
   {
     number: 13,
-    name: "سُورَةُ الرَّعۡدِ",
+    name: "الرَّعۡدِ",
     englishName: "Ar-Ra'd",
     englishNameTranslation: "The Thunder",
     numberOfAyahs: 43,
@@ -115,7 +116,7 @@ const data = [
   },
   {
     number: 14,
-    name: "سُورَةُ إِبۡرَاهِيمَ",
+    name: "إِبۡرَاهِيمَ",
     englishName: "Ibrahim",
     englishNameTranslation: "Abraham",
     numberOfAyahs: 52,
@@ -123,7 +124,7 @@ const data = [
   },
   {
     number: 15,
-    name: "سُورَةُ الحِجۡرِ",
+    name: "الحِجۡرِ",
     englishName: "Al-Hijr",
     englishNameTranslation: "The Rock",
     numberOfAyahs: 99,
@@ -131,7 +132,7 @@ const data = [
   },
   {
     number: 16,
-    name: "سُورَةُ النَّحۡلِ",
+    name: "النَّحۡلِ",
     englishName: "An-Nahl",
     englishNameTranslation: "The Bee",
     numberOfAyahs: 128,
@@ -139,7 +140,7 @@ const data = [
   },
   {
     number: 17,
-    name: "سُورَةُ الإِسۡرَاءِ",
+    name: "الإِسۡرَاءِ",
     englishName: "Al-Israa",
     englishNameTranslation: "The Night Journey",
     numberOfAyahs: 111,
@@ -147,7 +148,7 @@ const data = [
   },
   {
     number: 18,
-    name: "سُورَةُ الكَهۡفِ",
+    name: "الكَهۡفِ",
     englishName: "Al-Kahf",
     englishNameTranslation: "The Cave",
     numberOfAyahs: 110,
@@ -155,7 +156,7 @@ const data = [
   },
   {
     number: 19,
-    name: "سُورَةُ مَرۡيَمَ",
+    name: "مَرۡيَمَ",
     englishName: "Maryam",
     englishNameTranslation: "Mary",
     numberOfAyahs: 98,
@@ -163,7 +164,7 @@ const data = [
   },
   {
     number: 20,
-    name: "سُورَةُ طه",
+    name: "طه",
     englishName: "Taa-Haa",
     englishNameTranslation: "Taa-Haa",
     numberOfAyahs: 135,
@@ -171,7 +172,7 @@ const data = [
   },
   {
     number: 21,
-    name: "سُورَةُ الأَنبِيَاءِ",
+    name: "الأَنبِيَاءِ",
     englishName: "Al-Anbiyaa",
     englishNameTranslation: "The Prophets",
     numberOfAyahs: 112,
@@ -179,7 +180,7 @@ const data = [
   },
   {
     number: 22,
-    name: "سُورَةُ الحَجِّ",
+    name: "الحَجِّ",
     englishName: "Al-Hajj",
     englishNameTranslation: "The Pilgrimage",
     numberOfAyahs: 78,
@@ -187,7 +188,7 @@ const data = [
   },
   {
     number: 23,
-    name: "سُورَةُ المُؤۡمِنُونَ",
+    name: "المُؤۡمِنُونَ",
     englishName: "Al-Muminoon",
     englishNameTranslation: "The Believers",
     numberOfAyahs: 118,
@@ -195,7 +196,7 @@ const data = [
   },
   {
     number: 24,
-    name: "سُورَةُ النُّورِ",
+    name: "النُّورِ",
     englishName: "An-Noor",
     englishNameTranslation: "The Light",
     numberOfAyahs: 64,
@@ -203,7 +204,7 @@ const data = [
   },
   {
     number: 25,
-    name: "سُورَةُ الفُرۡقَانِ",
+    name: "الفُرۡقَانِ",
     englishName: "Al-Furqaan",
     englishNameTranslation: "The Criterion",
     numberOfAyahs: 77,
@@ -211,7 +212,7 @@ const data = [
   },
   {
     number: 26,
-    name: "سُورَةُ الشُّعَرَاءِ",
+    name: "الشُّعَرَاءِ",
     englishName: "Ash-Shu'araa",
     englishNameTranslation: "The Poets",
     numberOfAyahs: 227,
@@ -219,7 +220,7 @@ const data = [
   },
   {
     number: 27,
-    name: "سُورَةُ النَّمۡلِ",
+    name: "النَّمۡلِ",
     englishName: "An-Naml",
     englishNameTranslation: "The Ant",
     numberOfAyahs: 93,
@@ -227,7 +228,7 @@ const data = [
   },
   {
     number: 28,
-    name: "سُورَةُ القَصَصِ",
+    name: "القَصَصِ",
     englishName: "Al-Qasas",
     englishNameTranslation: "The Stories",
     numberOfAyahs: 88,
@@ -235,7 +236,7 @@ const data = [
   },
   {
     number: 29,
-    name: "سُورَةُ العَنكَبُوتِ",
+    name: "العَنكَبُوتِ",
     englishName: "Al-Ankaboot",
     englishNameTranslation: "The Spider",
     numberOfAyahs: 69,
@@ -243,7 +244,7 @@ const data = [
   },
   {
     number: 30,
-    name: "سُورَةُ الرُّومِ",
+    name: "الرُّومِ",
     englishName: "Ar-Room",
     englishNameTranslation: "The Romans",
     numberOfAyahs: 60,
@@ -251,7 +252,7 @@ const data = [
   },
   {
     number: 31,
-    name: "سُورَةُ لُقۡمَانَ",
+    name: "لُقۡمَانَ",
     englishName: "Luqman",
     englishNameTranslation: "Luqman",
     numberOfAyahs: 34,
@@ -259,7 +260,7 @@ const data = [
   },
   {
     number: 32,
-    name: "سُورَةُ السَّجۡدَةِ",
+    name: "السَّجۡدَةِ",
     englishName: "As-Sajda",
     englishNameTranslation: "The Prostration",
     numberOfAyahs: 30,
@@ -267,7 +268,7 @@ const data = [
   },
   {
     number: 33,
-    name: "سُورَةُ الأَحۡزَابِ",
+    name: "الأَحۡزَابِ",
     englishName: "Al-Ahzaab",
     englishNameTranslation: "The Clans",
     numberOfAyahs: 73,
@@ -275,7 +276,7 @@ const data = [
   },
   {
     number: 34,
-    name: "سُورَةُ سَبَإٍ",
+    name: "سَبَإٍ",
     englishName: "Saba",
     englishNameTranslation: "Sheba",
     numberOfAyahs: 54,
@@ -283,7 +284,7 @@ const data = [
   },
   {
     number: 35,
-    name: "سُورَةُ فَاطِرٍ",
+    name: "فَاطِرٍ",
     englishName: "Faatir",
     englishNameTranslation: "The Originator",
     numberOfAyahs: 45,
@@ -291,7 +292,7 @@ const data = [
   },
   {
     number: 36,
-    name: "سُورَةُ يسٓ",
+    name: "يسٓ",
     englishName: "Yaseen",
     englishNameTranslation: "Yaseen",
     numberOfAyahs: 83,
@@ -299,7 +300,7 @@ const data = [
   },
   {
     number: 37,
-    name: "سُورَةُ الصَّافَّاتِ",
+    name: "الصَّافَّاتِ",
     englishName: "As-Saaffaat",
     englishNameTranslation: "Those drawn up in Ranks",
     numberOfAyahs: 182,
@@ -307,7 +308,7 @@ const data = [
   },
   {
     number: 38,
-    name: "سُورَةُ صٓ",
+    name: "صٓ",
     englishName: "Saad",
     englishNameTranslation: "The letter Saad",
     numberOfAyahs: 88,
@@ -315,7 +316,7 @@ const data = [
   },
   {
     number: 39,
-    name: "سُورَةُ الزُّمَرِ",
+    name: "الزُّمَرِ",
     englishName: "Az-Zumar",
     englishNameTranslation: "The Groups",
     numberOfAyahs: 75,
@@ -323,7 +324,7 @@ const data = [
   },
   {
     number: 40,
-    name: "سُورَةُ غَافِرٍ",
+    name: "غَافِرٍ",
     englishName: "Ghafir",
     englishNameTranslation: "The Forgiver",
     numberOfAyahs: 85,
@@ -331,7 +332,7 @@ const data = [
   },
   {
     number: 41,
-    name: "سُورَةُ فُصِّلَتۡ",
+    name: "فُصِّلَتۡ",
     englishName: "Fussilat",
     englishNameTranslation: "Explained in detail",
     numberOfAyahs: 54,
@@ -339,7 +340,7 @@ const data = [
   },
   {
     number: 42,
-    name: "سُورَةُ الشُّورَىٰ",
+    name: "الشُّورَىٰ",
     englishName: "Ash-Shura",
     englishNameTranslation: "Consultation",
     numberOfAyahs: 53,
@@ -347,7 +348,7 @@ const data = [
   },
   {
     number: 43,
-    name: "سُورَةُ الزُّخۡرُفِ",
+    name: "الزُّخۡرُفِ",
     englishName: "Az-Zukhruf",
     englishNameTranslation: "Ornaments of gold",
     numberOfAyahs: 89,
@@ -355,7 +356,7 @@ const data = [
   },
   {
     number: 44,
-    name: "سُورَةُ الدُّخَانِ",
+    name: "الدُّخَانِ",
     englishName: "Ad-Dukhaan",
     englishNameTranslation: "The Smoke",
     numberOfAyahs: 59,
@@ -363,7 +364,7 @@ const data = [
   },
   {
     number: 45,
-    name: "سُورَةُ الجَاثِيَةِ",
+    name: "الجَاثِيَةِ",
     englishName: "Al-Jaathiya",
     englishNameTranslation: "Crouching",
     numberOfAyahs: 37,
@@ -371,7 +372,7 @@ const data = [
   },
   {
     number: 46,
-    name: "سُورَةُ الأَحۡقَافِ",
+    name: "الأَحۡقَافِ",
     englishName: "Al-Ahqaf",
     englishNameTranslation: "The Dunes",
     numberOfAyahs: 35,
@@ -379,7 +380,7 @@ const data = [
   },
   {
     number: 47,
-    name: "سُورَةُ مُحَمَّدٍ",
+    name: "مُحَمَّدٍ",
     englishName: "Muhammad",
     englishNameTranslation: "Muhammad",
     numberOfAyahs: 38,
@@ -387,7 +388,7 @@ const data = [
   },
   {
     number: 48,
-    name: "سُورَةُ الفَتۡحِ",
+    name: "الفَتۡحِ",
     englishName: "Al-Fath",
     englishNameTranslation: "The Victory",
     numberOfAyahs: 29,
@@ -395,7 +396,7 @@ const data = [
   },
   {
     number: 49,
-    name: "سُورَةُ الحُجُرَاتِ",
+    name: "الحُجُرَاتِ",
     englishName: "Al-Hujuraat",
     englishNameTranslation: "The Inner Apartments",
     numberOfAyahs: 18,
@@ -403,7 +404,7 @@ const data = [
   },
   {
     number: 50,
-    name: "سُورَةُ قٓ",
+    name: "قٓ",
     englishName: "Qaaf",
     englishNameTranslation: "The letter Qaaf",
     numberOfAyahs: 45,
@@ -411,7 +412,7 @@ const data = [
   },
   {
     number: 51,
-    name: "سُورَةُ الذَّارِيَاتِ",
+    name: "الذَّارِيَاتِ",
     englishName: "Adh-Dhaariyat",
     englishNameTranslation: "The Winnowing Winds",
     numberOfAyahs: 60,
@@ -419,7 +420,7 @@ const data = [
   },
   {
     number: 52,
-    name: "سُورَةُ الطُّورِ",
+    name: "الطُّورِ",
     englishName: "At-Tur",
     englishNameTranslation: "The Mount",
     numberOfAyahs: 49,
@@ -427,7 +428,7 @@ const data = [
   },
   {
     number: 53,
-    name: "سُورَةُ النَّجۡمِ",
+    name: "النَّجۡمِ",
     englishName: "An-Najm",
     englishNameTranslation: "The Star",
     numberOfAyahs: 62,
@@ -435,7 +436,7 @@ const data = [
   },
   {
     number: 54,
-    name: "سُورَةُ القَمَرِ",
+    name: "القَمَرِ",
     englishName: "Al-Qamar",
     englishNameTranslation: "The Moon",
     numberOfAyahs: 55,
@@ -443,7 +444,7 @@ const data = [
   },
   {
     number: 55,
-    name: "سُورَةُ الرَّحۡمَٰن",
+    name: "الرَّحۡمَٰن",
     englishName: "Ar-Rahmaan",
     englishNameTranslation: "The Beneficent",
     numberOfAyahs: 78,
@@ -451,7 +452,7 @@ const data = [
   },
   {
     number: 56,
-    name: "سُورَةُ الوَاقِعَةِ",
+    name: "الوَاقِعَةِ",
     englishName: "Al-Waaqia",
     englishNameTranslation: "The Inevitable",
     numberOfAyahs: 96,
@@ -459,7 +460,7 @@ const data = [
   },
   {
     number: 57,
-    name: "سُورَةُ الحَدِيدِ",
+    name: "الحَدِيدِ",
     englishName: "Al-Hadid",
     englishNameTranslation: "The Iron",
     numberOfAyahs: 29,
@@ -467,7 +468,7 @@ const data = [
   },
   {
     number: 58,
-    name: "سُورَةُ المُجَادلَةِ",
+    name: "المُجَادلَةِ",
     englishName: "Al-Mujaadila",
     englishNameTranslation: "The Pleading Woman",
     numberOfAyahs: 22,
@@ -475,7 +476,7 @@ const data = [
   },
   {
     number: 59,
-    name: "سُورَةُ الحَشۡرِ",
+    name: "الحَشۡرِ",
     englishName: "Al-Hashr",
     englishNameTranslation: "The Exile",
     numberOfAyahs: 24,
@@ -483,7 +484,7 @@ const data = [
   },
   {
     number: 60,
-    name: "سُورَةُ المُمۡتَحنَةِ",
+    name: "المُمۡتَحنَةِ",
     englishName: "Al-Mumtahana",
     englishNameTranslation: "She that is to be examined",
     numberOfAyahs: 13,
@@ -491,7 +492,7 @@ const data = [
   },
   {
     number: 61,
-    name: "سُورَةُ الصَّفِّ",
+    name: "الصَّفِّ",
     englishName: "As-Saff",
     englishNameTranslation: "The Ranks",
     numberOfAyahs: 14,
@@ -499,7 +500,7 @@ const data = [
   },
   {
     number: 62,
-    name: "سُورَةُ الجُمُعَةِ",
+    name: "الجُمُعَةِ",
     englishName: "Al-Jumu'a",
     englishNameTranslation: "Friday",
     numberOfAyahs: 11,
@@ -507,7 +508,7 @@ const data = [
   },
   {
     number: 63,
-    name: "سُورَةُ المُنَافِقُونَ",
+    name: "المُنَافِقُونَ",
     englishName: "Al-Munaafiqoon",
     englishNameTranslation: "The Hypocrites",
     numberOfAyahs: 11,
@@ -515,7 +516,7 @@ const data = [
   },
   {
     number: 64,
-    name: "سُورَةُ التَّغَابُنِ",
+    name: "التَّغَابُنِ",
     englishName: "At-Taghaabun",
     englishNameTranslation: "Mutual Disillusion",
     numberOfAyahs: 18,
@@ -523,7 +524,7 @@ const data = [
   },
   {
     number: 65,
-    name: "سُورَةُ الطَّلَاقِ",
+    name: "الطَّلَاقِ",
     englishName: "At-Talaaq",
     englishNameTranslation: "Divorce",
     numberOfAyahs: 12,
@@ -531,7 +532,7 @@ const data = [
   },
   {
     number: 66,
-    name: "سُورَةُ التَّحۡرِيمِ",
+    name: "التَّحۡرِيمِ",
     englishName: "At-Tahrim",
     englishNameTranslation: "The Prohibition",
     numberOfAyahs: 12,
@@ -539,7 +540,7 @@ const data = [
   },
   {
     number: 67,
-    name: "سُورَةُ المُلۡكِ",
+    name: "المُلۡكِ",
     englishName: "Al-Mulk",
     englishNameTranslation: "The Sovereignty",
     numberOfAyahs: 30,
@@ -547,7 +548,7 @@ const data = [
   },
   {
     number: 68,
-    name: "سُورَةُ القَلَمِ",
+    name: "القَلَمِ",
     englishName: "Al-Qalam",
     englishNameTranslation: "The Pen",
     numberOfAyahs: 52,
@@ -555,7 +556,7 @@ const data = [
   },
   {
     number: 69,
-    name: "سُورَةُ الحَاقَّةِ",
+    name: "الحَاقَّةِ",
     englishName: "Al-Haaqqa",
     englishNameTranslation: "The Reality",
     numberOfAyahs: 52,
@@ -563,7 +564,7 @@ const data = [
   },
   {
     number: 70,
-    name: "سُورَةُ المَعَارِجِ",
+    name: "المَعَارِجِ",
     englishName: "Al-Ma'aarij",
     englishNameTranslation: "The Ascending Stairways",
     numberOfAyahs: 44,
@@ -571,7 +572,7 @@ const data = [
   },
   {
     number: 71,
-    name: "سُورَةُ نُوحٍ",
+    name: "نُوحٍ",
     englishName: "Nooh",
     englishNameTranslation: "Noah",
     numberOfAyahs: 28,
@@ -579,7 +580,7 @@ const data = [
   },
   {
     number: 72,
-    name: "سُورَةُ الجِنِّ",
+    name: "الجِنِّ",
     englishName: "Al-Jinn",
     englishNameTranslation: "The Jinn",
     numberOfAyahs: 28,
@@ -587,7 +588,7 @@ const data = [
   },
   {
     number: 73,
-    name: "سُورَةُ المُزَّمِّلِ",
+    name: "المُزَّمِّلِ",
     englishName: "Al-Muzzammil",
     englishNameTranslation: "The Enshrouded One",
     numberOfAyahs: 20,
@@ -595,7 +596,7 @@ const data = [
   },
   {
     number: 74,
-    name: "سُورَةُ المُدَّثِّرِ",
+    name: "المُدَّثِّرِ",
     englishName: "Al-Muddaththir",
     englishNameTranslation: "The Cloaked One",
     numberOfAyahs: 56,
@@ -603,7 +604,7 @@ const data = [
   },
   {
     number: 75,
-    name: "سُورَةُ القِيَامَةِ",
+    name: "القِيَامَةِ",
     englishName: "Al-Qiyaama",
     englishNameTranslation: "The Resurrection",
     numberOfAyahs: 40,
@@ -611,7 +612,7 @@ const data = [
   },
   {
     number: 76,
-    name: "سُورَةُ الإِنسَانِ",
+    name: "الإِنسَانِ",
     englishName: "Al-Insaan",
     englishNameTranslation: "Man",
     numberOfAyahs: 31,
@@ -619,7 +620,7 @@ const data = [
   },
   {
     number: 77,
-    name: "سُورَةُ المُرۡسَلَاتِ",
+    name: "المُرۡسَلَاتِ",
     englishName: "Al-Mursalaat",
     englishNameTranslation: "The Emissaries",
     numberOfAyahs: 50,
@@ -627,7 +628,7 @@ const data = [
   },
   {
     number: 78,
-    name: "سُورَةُ النَّبَإِ",
+    name: "النَّبَإِ",
     englishName: "An-Naba",
     englishNameTranslation: "The Announcement",
     numberOfAyahs: 40,
@@ -635,7 +636,7 @@ const data = [
   },
   {
     number: 79,
-    name: "سُورَةُ النَّازِعَاتِ",
+    name: "النَّازِعَاتِ",
     englishName: "An-Naazi'aat",
     englishNameTranslation: "Those who drag forth",
     numberOfAyahs: 46,
@@ -643,7 +644,7 @@ const data = [
   },
   {
     number: 80,
-    name: "سُورَةُ عَبَسَ",
+    name: "عَبَسَ",
     englishName: "Abasa",
     englishNameTranslation: "He frowned",
     numberOfAyahs: 42,
@@ -651,7 +652,7 @@ const data = [
   },
   {
     number: 81,
-    name: "سُورَةُ التَّكۡوِيرِ",
+    name: "التَّكۡوِيرِ",
     englishName: "At-Takwir",
     englishNameTranslation: "The Overthrowing",
     numberOfAyahs: 29,
@@ -659,7 +660,7 @@ const data = [
   },
   {
     number: 82,
-    name: "سُورَةُ الانفِطَارِ",
+    name: "الانفِطَارِ",
     englishName: "Al-Infitaar",
     englishNameTranslation: "The Cleaving",
     numberOfAyahs: 19,
@@ -667,7 +668,7 @@ const data = [
   },
   {
     number: 83,
-    name: "سُورَةُ المُطَفِّفِينَ",
+    name: "المُطَفِّفِينَ",
     englishName: "Al-Mutaffifin",
     englishNameTranslation: "Defrauding",
     numberOfAyahs: 36,
@@ -675,7 +676,7 @@ const data = [
   },
   {
     number: 84,
-    name: "سُورَةُ الانشِقَاقِ",
+    name: "الانشِقَاقِ",
     englishName: "Al-Inshiqaaq",
     englishNameTranslation: "The Splitting Open",
     numberOfAyahs: 25,
@@ -683,7 +684,7 @@ const data = [
   },
   {
     number: 85,
-    name: "سُورَةُ البُرُوجِ",
+    name: "البُرُوجِ",
     englishName: "Al-Burooj",
     englishNameTranslation: "The Constellations",
     numberOfAyahs: 22,
@@ -691,7 +692,7 @@ const data = [
   },
   {
     number: 86,
-    name: "سُورَةُ الطَّارِقِ",
+    name: "الطَّارِقِ",
     englishName: "At-Taariq",
     englishNameTranslation: "The Morning Star",
     numberOfAyahs: 17,
@@ -699,7 +700,7 @@ const data = [
   },
   {
     number: 87,
-    name: "سُورَةُ الأَعۡلَىٰ",
+    name: "الأَعۡلَىٰ",
     englishName: "Al-A'laa",
     englishNameTranslation: "The Most High",
     numberOfAyahs: 19,
@@ -707,7 +708,7 @@ const data = [
   },
   {
     number: 88,
-    name: "سُورَةُ الغَاشِيَةِ",
+    name: "الغَاشِيَةِ",
     englishName: "Al-Ghaashiya",
     englishNameTranslation: "The Overwhelming",
     numberOfAyahs: 26,
@@ -715,7 +716,7 @@ const data = [
   },
   {
     number: 89,
-    name: "سُورَةُ الفَجۡرِ",
+    name: "الفَجۡرِ",
     englishName: "Al-Fajr",
     englishNameTranslation: "The Dawn",
     numberOfAyahs: 30,
@@ -723,7 +724,7 @@ const data = [
   },
   {
     number: 90,
-    name: "سُورَةُ البَلَدِ",
+    name: "البَلَدِ",
     englishName: "Al-Balad",
     englishNameTranslation: "The City",
     numberOfAyahs: 20,
@@ -731,7 +732,7 @@ const data = [
   },
   {
     number: 91,
-    name: "سُورَةُ الشَّمۡسِ",
+    name: "الشَّمۡسِ",
     englishName: "Ash-Shams",
     englishNameTranslation: "The Sun",
     numberOfAyahs: 15,
@@ -739,7 +740,7 @@ const data = [
   },
   {
     number: 92,
-    name: "سُورَةُ اللَّيۡلِ",
+    name: "اللَّيۡلِ",
     englishName: "Al-Lail",
     englishNameTranslation: "The Night",
     numberOfAyahs: 21,
@@ -747,7 +748,7 @@ const data = [
   },
   {
     number: 93,
-    name: "سُورَةُ الضُّحَىٰ",
+    name: "الضُّحَىٰ",
     englishName: "Ad-Dhuhaa",
     englishNameTranslation: "The Morning Hours",
     numberOfAyahs: 11,
@@ -755,7 +756,7 @@ const data = [
   },
   {
     number: 94,
-    name: "سُورَةُ الشَّرۡحِ",
+    name: "الشَّرۡحِ",
     englishName: "Ash-Sharh",
     englishNameTranslation: "The Consolation",
     numberOfAyahs: 8,
@@ -763,7 +764,7 @@ const data = [
   },
   {
     number: 95,
-    name: "سُورَةُ التِّينِ",
+    name: "التِّينِ",
     englishName: "At-Tin",
     englishNameTranslation: "The Fig",
     numberOfAyahs: 8,
@@ -771,7 +772,7 @@ const data = [
   },
   {
     number: 96,
-    name: "سُورَةُ العَلَقِ",
+    name: "العَلَقِ",
     englishName: "Al-Alaq",
     englishNameTranslation: "The Clot",
     numberOfAyahs: 19,
@@ -779,7 +780,7 @@ const data = [
   },
   {
     number: 97,
-    name: "سُورَةُ القَدۡرِ",
+    name: "القَدۡرِ",
     englishName: "Al-Qadr",
     englishNameTranslation: "The Power, Fate",
     numberOfAyahs: 5,
@@ -787,7 +788,7 @@ const data = [
   },
   {
     number: 98,
-    name: "سُورَةُ البَيِّنَةِ",
+    name: "البَيِّنَةِ",
     englishName: "Al-Bayyina",
     englishNameTranslation: "The Evidence",
     numberOfAyahs: 8,
@@ -795,7 +796,7 @@ const data = [
   },
   {
     number: 99,
-    name: "سُورَةُ الزَّلۡزَلَةِ",
+    name: "الزَّلۡزَلَةِ",
     englishName: "Az-Zalzala",
     englishNameTranslation: "The Earthquake",
     numberOfAyahs: 8,
@@ -803,7 +804,7 @@ const data = [
   },
   {
     number: 100,
-    name: "سُورَةُ العَادِيَاتِ",
+    name: "العَادِيَاتِ",
     englishName: "Al-Aadiyaat",
     englishNameTranslation: "The Chargers",
     numberOfAyahs: 11,
@@ -811,7 +812,7 @@ const data = [
   },
   {
     number: 101,
-    name: "سُورَةُ القَارِعَةِ",
+    name: "القَارِعَةِ",
     englishName: "Al-Qaari'a",
     englishNameTranslation: "The Calamity",
     numberOfAyahs: 11,
@@ -819,7 +820,7 @@ const data = [
   },
   {
     number: 102,
-    name: "سُورَةُ التَّكَاثُرِ",
+    name: "التَّكَاثُرِ",
     englishName: "At-Takaathur",
     englishNameTranslation: "Competition",
     numberOfAyahs: 8,
@@ -827,7 +828,7 @@ const data = [
   },
   {
     number: 103,
-    name: "سُورَةُ العَصۡرِ",
+    name: "العَصۡرِ",
     englishName: "Al-Asr",
     englishNameTranslation: "The Declining Day, Epoch",
     numberOfAyahs: 3,
@@ -835,7 +836,7 @@ const data = [
   },
   {
     number: 104,
-    name: "سُورَةُ الهُمَزَةِ",
+    name: "الهُمَزَةِ",
     englishName: "Al-Humaza",
     englishNameTranslation: "The Traducer",
     numberOfAyahs: 9,
@@ -843,7 +844,7 @@ const data = [
   },
   {
     number: 105,
-    name: "سُورَةُ الفِيلِ",
+    name: "الفِيلِ",
     englishName: "Al-Fil",
     englishNameTranslation: "The Elephant",
     numberOfAyahs: 5,
@@ -851,7 +852,7 @@ const data = [
   },
   {
     number: 106,
-    name: "سُورَةُ قُرَيۡشٍ",
+    name: "قُرَيۡشٍ",
     englishName: "Quraish",
     englishNameTranslation: "Quraysh",
     numberOfAyahs: 4,
@@ -859,7 +860,7 @@ const data = [
   },
   {
     number: 107,
-    name: "سُورَةُ المَاعُونِ",
+    name: "المَاعُونِ",
     englishName: "Al-Maa'un",
     englishNameTranslation: "Almsgiving",
     numberOfAyahs: 7,
@@ -867,7 +868,7 @@ const data = [
   },
   {
     number: 108,
-    name: "سُورَةُ الكَوۡثَرِ",
+    name: "الكَوۡثَرِ",
     englishName: "Al-Kawthar",
     englishNameTranslation: "Abundance",
     numberOfAyahs: 3,
@@ -875,7 +876,7 @@ const data = [
   },
   {
     number: 109,
-    name: "سُورَةُ الكَافِرُونَ",
+    name: "الكَافِرُونَ",
     englishName: "Al-Kaafiroon",
     englishNameTranslation: "The Disbelievers",
     numberOfAyahs: 6,
@@ -883,7 +884,7 @@ const data = [
   },
   {
     number: 110,
-    name: "سُورَةُ النَّصۡرِ",
+    name: "النَّصۡرِ",
     englishName: "An-Nasr",
     englishNameTranslation: "Divine Support",
     numberOfAyahs: 3,
@@ -891,7 +892,7 @@ const data = [
   },
   {
     number: 111,
-    name: "سُورَةُ المَسَدِ",
+    name: "المَسَدِ",
     englishName: "Al-Masad",
     englishNameTranslation: "The Palm Fibre",
     numberOfAyahs: 5,
@@ -899,7 +900,7 @@ const data = [
   },
   {
     number: 112,
-    name: "سُورَةُ الإِخۡلَاصِ",
+    name: "الإِخۡلَاصِ",
     englishName: "Al-Ikhlaas",
     englishNameTranslation: "Sincerity",
     numberOfAyahs: 4,
@@ -907,7 +908,7 @@ const data = [
   },
   {
     number: 113,
-    name: "سُورَةُ الفَلَقِ",
+    name: "الفَلَقِ",
     englishName: "Al-Falaq",
     englishNameTranslation: "The Dawn",
     numberOfAyahs: 5,
@@ -915,7 +916,7 @@ const data = [
   },
   {
     number: 114,
-    name: "سُورَةُ النَّاسِ",
+    name: "النَّاسِ",
     englishName: "An-Naas",
     englishNameTranslation: "Mankind",
     numberOfAyahs: 6,
@@ -991,35 +992,39 @@ export default function SurahPage() {
       <Box
         sx={{
           p: 2,
-          maxWidth: 500,
           margin: "0 auto",
           mb: isPlayerVisible ? 60 : 2,
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          Surah
-        </Typography>
+        <Container>
+          <Typography variant="h4" component="h1" gutterBottom align="center">
+            Surah
+          </Typography>
 
-        {/* The Stack component for listing items */}
+          {/* The Stack component for listing items */}
 
-        <Stack
-          spacing={1.5} // Controls the vertical space between each SurahRow card
-          sx={{ mt: 2 }}
-        >
-          {data.map((surah) => (
-            // We wrap the SurahRow in a key for performance and stability
-            <SurahInfoCard
-              onSurahCardClick={() => {
-                setSelectedSurah(surah.number);
-                setNumberOfAyahs(surah.numberOfAyahs);
-                setIsPlayerVisible(true);
-              }}
-              key={surah.number}
-              surah={surah}
-              selected={selectedSurah === surah.number}
-            />
-          ))}
-        </Stack>
+          <Grid
+            container
+            justifyContent="center"
+            sx={{ width: "100%" }}
+            spacing={1.5} // Controls the vertical space between each SurahRow card
+            dir="rtl"
+          >
+            {data.map((surah) => (
+              // We wrap the SurahRow in a key for performance and stability
+              <SurahInfoCard
+                onSurahCardClick={() => {
+                  setSelectedSurah(surah.number);
+                  setNumberOfAyahs(surah.numberOfAyahs);
+                  setIsPlayerVisible(true);
+                }}
+                key={surah.number}
+                surah={surah}
+                selected={selectedSurah === surah.number}
+              />
+            ))}
+          </Grid>
+        </Container>
       </Box>
 
       {/* Button to show the player if it's hidden */}
