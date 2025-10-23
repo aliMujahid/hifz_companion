@@ -16,7 +16,7 @@ import DATA from "../../surahData.json";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
-export default function Player({ surahData, ayahNumberFirst, totalAyah }) {
+export default function Player({ ayahNumberFirst, totalAyah }) {
   const theme = useTheme();
   const audioSourceUrl = [];
 

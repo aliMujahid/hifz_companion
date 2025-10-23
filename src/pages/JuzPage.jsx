@@ -97,9 +97,6 @@ export default function JuzPage() {
     }
   };
 
-  const skipToPrevJuz = () => handleJuzChange(selectedJuz - 1);
-  const skipToNextJuz = () => handleJuzChange(selectedJuz + 1);
-
   const togglePlayerVisibility = () => {
     setIsPlayerVisible(!isPlayerVisible);
   };
@@ -305,14 +302,7 @@ export default function JuzPage() {
             transition: "bottom 0.3s ease-in-out",
           }}
         >
-          <Player
-            surahData={juzData}
-            ayahNumberFirst={ayahNumberFirst}
-            totalAyah={numberOfAyahs}
-            togglePlayerVisibility={togglePlayerVisibility}
-            skipToPrevSurah={skipToPrevJuz}
-            skipToNextSurah={skipToNextJuz}
-          />
+          <Player ayahNumberFirst={ayahNumberFirst} totalAyah={numberOfAyahs} />
         </Box>
       )}
       {/* -------------------- RIGHT DRAWER FOR AYAH TEXTS -------------------- */}
@@ -337,18 +327,26 @@ export default function JuzPage() {
             alignItems="center"
             mb={2}
           >
-            {/* <Typography variant="h6">
-              Surah {surah.englishName} ({ayahStartSurahIndex} -{" "}
-              {ayahStartSurahIndex + totalAyah - 1})
-            </Typography> */}
+            {juzData && (
+              <Typography variant="h6">
+                {juzData.englishName} {juzData.number}
+              </Typography>
+            )}
             <Box
               display="flex"
               justifyContent="space-between"
               alignItems="center"
             >
-              {/* <Typography variant="h4" mr={3} dir="rtl" fontFamily={"alQalam"}>
-                سُورَةُ {surah.name}
-              </Typography> */}
+              {juzData && (
+                <Typography
+                  variant="h4"
+                  mr={3}
+                  dir="rtl"
+                  fontFamily={"alQalam"}
+                >
+                  {juzData.name}
+                </Typography>
+              )}
               <IconButton
                 onClick={() => setIsDrawerOpen(false)}
                 aria-label="Close text drawer"
