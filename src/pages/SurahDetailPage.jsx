@@ -3,177 +3,325 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import Container from "@mui/material/Container";
 import Player from "../components/Player";
 import AyahButton from "../components/AyahButton";
+import Drawer from "@mui/material/Drawer";
+import CloseIcon from "@mui/icons-material/Close";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import { useTheme } from "@mui/material/styles";
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom"; 
-import data from "../../surahData.json"; 
+import { useParams } from "react-router-dom";
+import data from "../../surahData.json";
+import AYAH_TEXT from "../../indopak-nastaleeq.json";
 
 // Dummy functions for Player props (replace with actual logic if needed)
 const skipToPrevSurah = () => console.log("Skip to previous Surah");
 const skipToNextSurah = () => console.log("Skip to next Surah");
 
 export default function SurahDetailPage() {
-    // Get the surahNumber parameter from the URL
-    const { surahNumber: surahNumberParam } = useParams();
-    const surahNumber = parseInt(surahNumberParam);
+  const theme = useTheme();
+  // Get the surahNumber parameter from the URL
+  const { surahNumber: surahNumberParam } = useParams();
+  const surahNumber = parseInt(surahNumberParam);
 
-    // Get the surah data based on the URL parameter
-    const surah = useMemo(() => {
-        if (!isNaN(surahNumber) && surahNumber > 0 && surahNumber <= data.length) {
-            return data[surahNumber - 1]; // data is 0-indexed, surah number is 1-indexed
-        }
-        // Fallback for an invalid number or initial render (optional: add error handling)
-        return { number: 0, name: "Error", englishName: "Error", englishNameTranslation: "Not Found", numberOfAyahs: 0, revelationType: "", firstAyahIndex: 0 };
-    }, [surahNumber]);
-   
-    const [isPlayerVisible, setIsPlayerVisible] = useState(false);
-    // State to store the selected range: [startAyahNumber, endAyahNumber]
-    const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
-
-    const togglePlayerVisibility = () => {
-        setIsPlayerVisible(!isPlayerVisible);
+  // Get the surah data based on the URL parameter
+  const surah = useMemo(() => {
+    if (!isNaN(surahNumber) && surahNumber > 0 && surahNumber <= data.length) {
+      return data[surahNumber - 1]; // data is 0-indexed, surah number is 1-indexed
+    }
+    // Fallback for an invalid number or initial render (optional: add error handling)
+    return {
+      number: 0,
+      name: "Error",
+      englishName: "Error",
+      englishNameTranslation: "Not Found",
+      numberOfAyahs: 0,
+      revelationType: "",
+      firstAyahIndex: 0,
     };
+  }, [surahNumber]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+  // State to store the selected range: [startAyahNumber, endAyahNumber]
+  const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
 
-    // Determine the ordered start and end of the selection for display/play
-    const [ayahNumberFirst, totalAyah] = useMemo(() => {
-        const [start, end] = selectedAyahRange;
-        if (start === null || end === null) return [null, 0];
+  const togglePlayerVisibility = () => {
+    setIsPlayerVisible(!isPlayerVisible);
+  };
 
-        const minAyah = Math.min(start, end);
-        const maxAyah = Math.max(start, end);
-        const count = maxAyah - minAyah + 1;
-        return [minAyah+surah.firstAyahIndex-1 , count];
-    }, [selectedAyahRange]);
+  // Determine the ordered start and end of the selection for display/play
+  const [ayahStartSurahIndex, totalAyah] = useMemo(() => {
+    const [start, end] = selectedAyahRange;
+    if (start === null || end === null) return [null, 0];
 
-    // Handle a click on an AyahButton
-    const handleAyahSelection = (ayahNumber) => {
-        const [start, end] = selectedAyahRange;
+    const minAyah = Math.min(start, end);
+    const maxAyah = Math.max(start, end);
+    const count = maxAyah - minAyah + 1;
+    return [minAyah, count];
+  }, [selectedAyahRange]);
 
-        if (start === null) {
-            // First click: Set the start
-            setSelectedAyahRange([ayahNumber, null]);
-        } else if (end === null) {
-            // Second click: Set the end and finalize the range
-            setSelectedAyahRange([start, ayahNumber]);
-            // Optionally show player immediately after selection
-            if (!isPlayerVisible) {
-                setIsPlayerVisible(true);
-            }
-        } else {
-            // Third click (or beyond): Start a new selection
-            // We set the new start and clear the end
-            setSelectedAyahRange([ayahNumber, null]);
-        }
-    };
+  // Calculate the global index of the first ayah for the Player component
+  // Assuming `surah.firstAyahIndex` is the global index of the first ayah of the surah.
+  const ayahNumberFirstGlobal = useMemo(() => {
+    if (ayahStartSurahIndex === null) return null;
+    // Calculate the global ayah index (1-based global ayah number)
+    return surah.firstAyahIndex + ayahStartSurahIndex - 1;
+  }, [surah.firstAyahIndex, ayahStartSurahIndex]);
 
-    // Checks if an ayah number is within the selected range (inclusive)
-    const isAyahSelected = (ayahNumber) => {
-        const [start, end] = selectedAyahRange;
+  // Logic to fetch the Ayah Texts based on the selection
+  const ayahTexts = useMemo(() => {
+    if (ayahStartSurahIndex === null || totalAyah === 0 || surah.number === 0)
+      return [];
 
-        if (start === null) return false;
+    const texts = [];
+    for (let i = 0; i < totalAyah; i++) {
+      // The key format is "SurahNumber:AyahNumber_within_Surah"
+      const ayahKey = `${surah.number}:${ayahStartSurahIndex + i}`;
+      if (AYAH_TEXT[ayahKey]) {
+        texts.push(AYAH_TEXT[ayahKey]);
+      }
+    }
+    return texts;
+  }, [ayahStartSurahIndex, totalAyah, surah.number]);
 
-        // If only start is selected
-        if (end === null) return ayahNumber === start;
-        
-        // If a full range is selected
-        const minAyah = Math.min(start, end);
-        const maxAyah = Math.max(start, end);
-        
-        return ayahNumber >= minAyah && ayahNumber <= maxAyah;
-    };
+  // Effect to open the drawer when a full range is selected
+  useEffect(() => {
+    const [start, end] = selectedAyahRange;
+    // Open the drawer only when a valid, two-point range is finalized
+    if (start !== null && end !== null && totalAyah > 0) {
+      setIsDrawerOpen(true);
+    }
+  }, [selectedAyahRange, totalAyah]);
 
+  // Handle a click on an AyahButton
+  const handleAyahSelection = (ayahNumber) => {
+    const [start, end] = selectedAyahRange;
 
-    // Create an array of ayah numbers for mapping (simplified)
-    const ayahNumbers = Array.from({ length: surah.numberOfAyahs }, (_, i) => i + 1);
+    if (start === null) {
+      // First click: Set the start
+      setSelectedAyahRange([ayahNumber, null]);
+    } else if (end === null) {
+      // Second click: Set the end and finalize the range
+      setSelectedAyahRange([start, ayahNumber]);
+      // Optionally show player immediately after selection
+      if (!isPlayerVisible) {
+        setIsPlayerVisible(true);
+      }
+    } else {
+      // Third click (or beyond): Start a new selection
+      // We set the new start and clear the end
+      setSelectedAyahRange([ayahNumber, null]);
+    }
+  };
 
-    return (
-        <Box sx={{ p: 2, pb: isPlayerVisible ? 30 : 2 }}> 
-            <Container maxWidth="md">
-                <Typography variant="h4" component="h1" gutterBottom align="center">
-                    {surah.name}
-                </Typography>
+  // Checks if an ayah number is within the selected range (inclusive)
+  const isAyahSelected = (ayahNumber) => {
+    const [start, end] = selectedAyahRange;
 
-                <Grid
-                    container
-                    spacing={2}
-                    justifyContent="center"
-                    sx={{ width: "100%" }}
-                >
-                    {ayahNumbers.map((ayahNumber) => (
-                        <Grid item key={ayahNumber}>
-                            <AyahButton
-                                ayah={ayahNumber}
-                                isSelected={isAyahSelected(ayahNumber)}
-                                onClick={() => handleAyahSelection(ayahNumber)}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-                {/* Display selected range info */}
-                <Typography variant="body1" mt={4} align="center">
-                    {ayahNumberFirst !== null
-                        ? `Selected Ayahs: ${ayahNumberFirst} to ${ayahNumberFirst + totalAyah - 1} (Total: ${totalAyah})`
-                        : "Click an ayah to start a selection."
-                    }
-                </Typography>
-            </Container>
+    if (start === null) return false;
 
-            {/* Button to show the player if it's hidden */}
-            {!isPlayerVisible && (
-                <Box
-                    sx={{
-                        position: "fixed",
-                        bottom: 16,
-                        right: 16,
-                        zIndex: 1000,
-                    }}
-                >
-                    <IconButton
-                        color="primary"
-                        onClick={togglePlayerVisibility}
-                        sx={{
-                            bgcolor: "background.paper",
-                            boxShadow: 5,
-                            "&:hover": { bgcolor: "primary.light" },
-                        }}
-                    >
-                        <KeyboardDoubleArrowUpIcon fontSize="large" />
-                    </IconButton>
-                </Box>
-            )}
+    // If only start is selected
+    if (end === null) return ayahNumber === start;
 
-            {/* Player component fixed at the bottom */}
-            <Box
-                sx={{
-                    position: "fixed",
-                    bottom: isPlayerVisible ? 0 : -500,
-                    left: 0,
-                    right: 0,
-                    zIndex: 1300,
-                    p: 1,
-                    width: "100%",
-                    boxSizing: "border-box",
-                    transition: "bottom 0.3s ease-in-out",
-                    borderTop: '1px solid #e0e0e0' // Optional styling
-                }}
-            >
-                {/* Only render Player if a range is selected and totalAyah > 0 */}
-                {ayahNumberFirst !== null && totalAyah > 0 && (
-                    <Player
-                        surahData={surah}
-                        ayahNumberFirst={ayahNumberFirst}
-                        totalAyah={totalAyah}
-                        togglePlayerVisibility={togglePlayerVisibility}
-                        skipToPrevSurah={skipToPrevSurah}
-                        skipToNextSurah={skipToNextSurah}
-                        // Note: The Player component will need the actual URLs for the selected range.
-                        // You'll need to create this list of URLs based on ayahNumberFirst and totalAyah
-                        // and pass it to the Player.
-                    />
-                )}
-            </Box>
+    // If a full range is selected
+    const minAyah = Math.min(start, end);
+    const maxAyah = Math.max(start, end);
+
+    return ayahNumber >= minAyah && ayahNumber <= maxAyah;
+  };
+
+  // Create an array of ayah numbers for mapping (simplified)
+  const ayahNumbers = Array.from(
+    { length: surah.numberOfAyahs },
+    (_, i) => i + 1
+  );
+
+  return (
+    <Box sx={{ p: 2, pb: isPlayerVisible ? 30 : 2 }}>
+      <Container maxWidth="md">
+        <Typography
+          variant="h4"
+          fontFamily={"alQalam"}
+          component="h1"
+          gutterBottom
+          align="center"
+        >
+          {surah.name}
+        </Typography>
+
+        <Grid
+          container
+          spacing={2}
+          justifyContent="center"
+          sx={{ width: "100%" }}
+        >
+          {ayahNumbers.map((ayahNumber) => (
+            <Grid item key={ayahNumber}>
+              <AyahButton
+                ayah={ayahNumber}
+                isSelected={isAyahSelected(ayahNumber)}
+                onClick={() => handleAyahSelection(ayahNumber)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      {/* Button to show the player if it's hidden */}
+      {!isPlayerVisible && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+            zIndex: 1000,
+          }}
+        >
+          <IconButton
+            color="primary"
+            onClick={togglePlayerVisibility}
+            sx={{
+              bgcolor: "background.paper",
+              boxShadow: 5,
+              "&:hover": { bgcolor: "primary.light" },
+            }}
+          >
+            <KeyboardDoubleArrowUpIcon fontSize="large" />
+          </IconButton>
         </Box>
-    );
+      )}
+
+      {!isDrawerOpen && totalAyah > 0 && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: "50%", // Center vertically
+            right: 0, // Position on the far right
+            transform: "translateY(-50%)", // Adjust for vertical centering
+            zIndex: 1200, // Ensure it's above content but below the open drawer (1300)
+            // Use a slight offset from the edge for better visibility
+            mr: 0,
+          }}
+        >
+          <IconButton
+            color="primary"
+            onClick={() => setIsDrawerOpen(true)}
+            size="large"
+            sx={{
+              bgcolor: "background.paper",
+              boxShadow: 5,
+              // Style the button to look like a tab/handle
+              borderTopLeftRadius: 8,
+              borderBottomLeftRadius: 8,
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0,
+              p: 1.5,
+              "&:hover": { bgcolor: "primary.light" },
+            }}
+            // Use a descriptive aria-label
+            aria-label="Open Ayah Text"
+          >
+            {/* Using a Text or Message icon for text drawer */}
+            <KeyboardDoubleArrowLeftIcon fontSize="inherit" />
+          </IconButton>
+        </Box>
+      )}
+
+      {/* Player component fixed at the bottom */}
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: isPlayerVisible ? 0 : -500,
+          left: 0,
+          right: 0,
+          zIndex: 1300,
+          p: 1,
+          width: "100%",
+          boxSizing: "border-box",
+          transition: "bottom 0.3s ease-in-out",
+          borderTop: "1px solid #e0e0e0", // Optional styling
+        }}
+      >
+        {/* Only render Player if a range is selected and totalAyah > 0 */}
+        {ayahNumberFirstGlobal !== null && totalAyah > 0 && (
+          <Player
+            surahData={surah}
+            ayahNumberFirst={ayahNumberFirstGlobal} // Pass the global index
+            totalAyah={totalAyah}
+            togglePlayerVisibility={togglePlayerVisibility}
+            skipToPrevSurah={skipToPrevSurah}
+            skipToNextSurah={skipToNextSurah}
+          />
+        )}
+      </Box>
+
+      {/* -------------------- RIGHT DRAWER FOR AYAH TEXTS -------------------- */}
+      <Drawer
+        anchor="right"
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        sx={{
+          // Style the Paper component of the Drawer
+          "& .MuiDrawer-paper": {
+            width: { xs: "90%", sm: 500, md: 900 }, // Responsive width
+            maxWidth: "100%",
+            boxSizing: "border-box",
+            backgroundColor: theme.palette.background.default,
+          },
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              Ayah Text ({ayahStartSurahIndex} -{" "}
+              {ayahStartSurahIndex + totalAyah - 1})
+            </Typography>
+            <IconButton
+              onClick={() => setIsDrawerOpen(false)}
+              aria-label="Close text drawer"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Divider />
+
+          {/* Display the Ayah Texts */}
+          <Box sx={{ mt: 2, height: "calc(100vh - 100px)", overflowY: "auto" }}>
+            {ayahTexts.length > 0 ? (
+              ayahTexts.map((ayah, index) => (
+                <Paper key={index} elevation={1} sx={{ p: 2, mb: 2 }}>
+                  <Typography
+                    dir="rtl"
+                    variant="body1"
+                    sx={{
+                      fontFamily:
+                        "AlQalam, 'Arial Unicode MS', Arial, sans-serif",
+                      fontSize: "1.8rem",
+                      lineHeight: 2.2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {ayah.text}
+                  </Typography>
+                </Paper>
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Select a range of Ayahs to view the text.
+              </Typography>
+            )}
+          </Box>
+        </Box>
+      </Drawer>
+      {/* ------------------ END RIGHT DRAWER ------------------ */}
+    </Box>
+  );
 }
