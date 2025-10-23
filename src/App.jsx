@@ -36,7 +36,7 @@ const LinkTab = React.forwardRef((props, ref) => {
 
 const theme = createTheme({
   typography: {
-    fontFamily: "Open Sans, sans-serif",
+    fontFamily: "Cabin, Open Sans, sans-serif",
   },
 });
 
