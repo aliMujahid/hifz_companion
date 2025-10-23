@@ -53,8 +53,8 @@ import QURAN from "../../indopak-nastaleeq-vers.json";
 const suraFirstAyahIndex = surahData.map((surah) => surah.firstAyahIndex);
 
 export default function JuzPage() {
-  const [selectedJuz, setSelectedJuz] = useState(0);
-  const [numberOfAyahs, setNumberOfAyahs] = useState(JUZ[0].totalAyahs);
+  const [selectedJuz, setSelectedJuz] = useState(null);
+  const [numberOfAyahs, setNumberOfAyahs] = useState(0);
   const [ayahNumberFirst, setAyahNumberFirst] = useState(
     JUZ[0].ayahNumberFirst
   );
@@ -68,9 +68,11 @@ export default function JuzPage() {
     for (let i = 0; i < numberOfAyahs; i++) {
       if (
         suraFirstAyahIndex.includes(ayahNumberFirst + i) &&
-        ayahNumberFirst + i !== 1236
+        ayahNumberFirst + i !== 1236 &&
+        ayahNumberFirst + i !== 1
       ) {
         //omit bismilla before surah tawba
+        console.log("here!");
         texts.push(QURAN["1"]);
       }
       texts.push(QURAN[ayahNumberFirst + i]);
@@ -253,7 +255,41 @@ export default function JuzPage() {
           </IconButton>
         </Box>
       )}
-
+      {!isDrawerOpen && numberOfAyahs > 0 && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: "50%", // Center vertically
+            right: 0, // Position on the far right
+            transform: "translateY(-50%)", // Adjust for vertical centering
+            zIndex: 1200, // Ensure it's above content but below the open drawer (1300)
+            // Use a slight offset from the edge for better visibility
+            mr: 0,
+          }}
+        >
+          <IconButton
+            color="primary"
+            onClick={() => setIsDrawerOpen(true)}
+            size="large"
+            sx={{
+              bgcolor: "background.paper",
+              boxShadow: 5,
+              // Style the button to look like a tab/handle
+              borderTopLeftRadius: 8,
+              borderBottomLeftRadius: 8,
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0,
+              p: 1.5,
+              "&:hover": { bgcolor: "primary.light" },
+            }}
+            // Use a descriptive aria-label
+            aria-label="Open Ayah Text"
+          >
+            {/* Using a Text or Message icon for text drawer */}
+            <KeyboardDoubleArrowLeftIcon fontSize="inherit" />
+          </IconButton>
+        </Box>
+      )}
       {/* Player component fixed at the bottom */}
       {juzData && (
         <Box
