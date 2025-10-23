@@ -33,15 +33,24 @@ const JUZ = [
 
 const totalJuzs = 30 - 1; //offset by -1 for indexing
 
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import Drawer from "@mui/material/Drawer";
+import CloseIcon from "@mui/icons-material/Close";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import Container from "@mui/material/Container";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Player from "../components/Player";
 import { useTheme } from "@mui/material/styles";
+import surahData from "../../surahData.json";
+import QURAN from "../../indopak-nastaleeq-vers.json";
+
+const suraFirstAyahIndex = surahData.map((surah) => surah.firstAyahIndex);
 
 export default function JuzPage() {
   const [selectedJuz, setSelectedJuz] = useState(0);
@@ -51,7 +60,23 @@ export default function JuzPage() {
   );
   const [juzData, setJuzdata] = useState(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const theme = useTheme();
+
+  const ayahTexts = useMemo(() => {
+    const texts = [];
+    for (let i = 0; i < numberOfAyahs; i++) {
+      if (
+        suraFirstAyahIndex.includes(ayahNumberFirst + i) &&
+        ayahNumberFirst + i !== 1236
+      ) {
+        //omit bismilla before surah tawba
+        texts.push(QURAN["1"]);
+      }
+      texts.push(QURAN[ayahNumberFirst + i]);
+    }
+    return texts;
+  }, [ayahNumberFirst, numberOfAyahs]);
 
   const handleJuzChange = (newJuzNumber) => {
     let finalJuzNumber = newJuzNumber;
@@ -171,6 +196,7 @@ export default function JuzPage() {
                   setSelectedJuz(index);
                   setAyahNumberFirst(juz.ayahNumberFirst);
                   setNumberOfAyahs(juz.totalAyahs);
+                  setIsDrawerOpen(true);
                   if (!isPlayerVisible) {
                     setIsPlayerVisible(true);
                   }
@@ -253,6 +279,79 @@ export default function JuzPage() {
           />
         </Box>
       )}
+      {/* -------------------- RIGHT DRAWER FOR AYAH TEXTS -------------------- */}
+      <Drawer
+        anchor="right"
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        sx={{
+          // Style the Paper component of the Drawer
+          "& .MuiDrawer-paper": {
+            width: { xs: "90%", sm: 500, md: 900 }, // Responsive width
+            maxWidth: "100%",
+            boxSizing: "border-box",
+            backgroundColor: theme.palette.background.default,
+          },
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            {/* <Typography variant="h6">
+              Surah {surah.englishName} ({ayahStartSurahIndex} -{" "}
+              {ayahStartSurahIndex + totalAyah - 1})
+            </Typography> */}
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              {/* <Typography variant="h4" mr={3} dir="rtl" fontFamily={"alQalam"}>
+                سُورَةُ {surah.name}
+              </Typography> */}
+              <IconButton
+                onClick={() => setIsDrawerOpen(false)}
+                aria-label="Close text drawer"
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </Box>
+          <Divider />
+
+          {/* Display the Ayah Texts */}
+          <Box sx={{ mt: 2, height: "calc(100vh - 100px)", overflowY: "auto" }}>
+            {ayahTexts.length > 0 ? (
+              ayahTexts.map((ayah, index) => (
+                <Paper key={index} elevation={1} sx={{ p: 2, mb: 2 }}>
+                  <Typography
+                    dir="rtl"
+                    variant="body1"
+                    sx={{
+                      fontFamily:
+                        "AlQalam, 'Arial Unicode MS', Arial, sans-serif",
+                      fontSize: "1.8rem",
+                      lineHeight: 2.2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {ayah.text}
+                  </Typography>
+                </Paper>
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Select a range of Ayahs to view the text.
+              </Typography>
+            )}
+          </Box>
+        </Box>
+      </Drawer>
+      {/* ------------------ END RIGHT DRAWER ------------------ */}
     </Box>
   );
 }
