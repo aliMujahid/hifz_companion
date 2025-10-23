@@ -1,34 +1,24 @@
-import CardContent from "@mui/material/CardContent";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import RepeatIcon from "@mui/icons-material/Repeat";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import Button from "@mui/material/Button";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import { useState, useRef, useEffect, useCallback } from "react";
 import RepeatCountField from "./playerComponents/RepeatCountField";
 import DATA from "../../surahData.json";
+import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
-export default function Player({
-  surahData,
-  togglePlayerVisibility,
-  ayahNumberFirst,
-  totalAyah,
-  skipToPrevSurah,
-  skipToNextSurah,
-}) {
+export default function Player({ surahData, ayahNumberFirst, totalAyah }) {
   const theme = useTheme();
-  const audioSourceUrl = [
-    "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3",
-  ];
+  const audioSourceUrl = [];
 
   let surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
 
@@ -55,17 +45,20 @@ export default function Player({
   }
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [pauseTime, setPauseTime] = useState(false);
   const [repeatCount, setRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
   const [loop, setLoop] = useState(false);
   const audioRef = useRef(null);
-
+  const [isExpanded, setIsExpanded] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [internalTrackIndex, setInternalTrackIndex] = useState(0);
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const toggleLoop = () => {
     setLoop(!loop);
@@ -89,21 +82,46 @@ export default function Player({
     setCurrentRepeat(nextRepeat);
 
     if (nextRepeat < repeatCount) {
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current
-          .play()
-          .catch((e) => console.error("Error playing audio after loop:", e));
+      if (pauseTime) {
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current
+              .play()
+              .catch((e) =>
+                console.error("Error playing audio after loop:", e)
+              );
+          }
+        }, duration * 1000);
+      } else {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current
+            .play()
+            .catch((e) => console.error("Error playing audio after loop:", e));
+        }
       }
     } else {
       const isLastTrack = currentTrackIndex === audioSourceUrl.length - 1;
 
       if (!isLastTrack) {
         setCurrentRepeat(0);
-        goToNextTrack();
+        if (pauseTime) {
+          setTimeout(() => {
+            goToNextTrack();
+          }, duration * 1000);
+        } else {
+          goToNextTrack();
+        }
       } else {
         if (loop) {
-          goToNextTrack();
+          if (pauseTime) {
+            setTimeout(() => {
+              goToNextTrack();
+            }, duration * 1000);
+          } else {
+            goToNextTrack();
+          }
         } else {
           setPaused(true);
           setIsDone(true);
@@ -119,6 +137,7 @@ export default function Player({
     audioSourceUrl.length,
     goToNextTrack,
     loop,
+    pauseTime,
   ]);
 
   useEffect(() => {
@@ -132,45 +151,6 @@ export default function Player({
       audioRef.current.currentTime = 0;
     }
   }, [ayahNumberFirst]); // Trigger when a new Surah is selected
-
-  const commitTrackChange = (value) => {
-    const totalTracks = audioSourceUrl.length;
-    const valueNum = parseInt(value, 10);
-
-    if (isNaN(valueNum)) {
-      setInternalTrackIndex(currentTrackIndex); // Revert to current on invalid
-      return;
-    }
-
-    const newTrackIndex = Math.min(Math.max(0, valueNum), totalTracks - 1);
-
-    if (newTrackIndex !== currentTrackIndex) {
-      setCurrentTrackIndex(newTrackIndex);
-      setPaused(false);
-      setCurrentRepeat(0);
-    } else {
-      setInternalTrackIndex(currentTrackIndex);
-    }
-  };
-
-  const handleTrackIndexBlur = () => {
-    commitTrackChange(internalTrackIndex);
-  };
-
-  const handleTrackIndexKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commitTrackChange(e.target.value);
-
-      e.target.blur();
-    }
-  };
-
-  const handleInternalTrackIndexChange = (e) => {
-    // Allow typing only numbers
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setInternalTrackIndex(value);
-  };
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
@@ -268,221 +248,75 @@ export default function Player({
     <Box
       sx={{
         width: "100%",
-        maxWidth: "768px",
       }}
     >
       <Card
         sx={{
           display: "flex",
-          flexDirection: {
-            xs: "column",
-            sm: "row",
-          },
-          boxShadow: theme.shadows[10],
+          flexDirection: "column",
           backgroundColor: theme.palette.background.paper,
           position: "relative",
+          px: { xs: 1, sm: 2, md: 5 },
+          pt: 2,
         }}
       >
-        <IconButton
-          aria-label="close"
-          onClick={togglePlayerVisibility}
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            zIndex: 1, // Ensure it's above the card content
-            color: theme.palette.text.secondary,
-          }}
-        >
-          <KeyboardDoubleArrowDownIcon />
-        </IconButton>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: {
-              xs: "row",
-              sm: "column",
-            },
-            width: {
-              xs: "100%",
-              sm: "25%",
-            },
-            height: "auto",
-            flexShrink: 0,
-            backgroundImage:
-              "linear-gradient(135deg, #00C4AA 0%, #00A152 100%)",
-
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderRadius: "3px 0 0 3px",
-            position: "relative",
-            p: 1,
-          }}
-        >
-          {/* Previous Surah Button (Left side of the left box) */}
-          <IconButton
-            aria-label="previous surah"
-            onClick={skipToPrevSurah}
-            sx={{
-              color: "rgba(255, 255, 255, 0.8)",
-              p: { xs: 1, sm: 2 },
-            }}
-          >
-            <SkipPreviousIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />
-          </IconButton>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: {
-                xs: "row",
-                sm: "column",
-              },
-              flexGrow: 1,
-              textAlign: "center",
-
-              justifyContent: "center",
-              alignItems: "center",
-              mx: { xs: 1, sm: 0 },
-            }}
-          >
-            <Typography
-              variant="h6"
-              color="white"
-              sx={{ p: 2, textAlign: "center" }}
-            >
-              {surahData.englishName}
-            </Typography>
-            <Typography
-              variant="h6"
-              color="white"
-              sx={{ p: 2, textAlign: "center", fontFamily: "AlQalam" }}
-              dir="rtl"
-            >
-              {surahData.name}
-            </Typography>
-            <Typography
-              variant="h6"
-              color="white"
-              sx={{ p: 2, textAlign: "center" }}
-            >
-              {surahData.number}
-            </Typography>
-          </Box>
-          {/* Next Surah Button (Right side of the left box) */}
-          <IconButton
-            aria-label="next surah"
-            onClick={skipToNextSurah}
-            sx={{
-              color: "rgba(255, 255, 255, 0.8)",
-              p: { xs: 1, sm: 2 },
-              mr: 6,
-            }}
-          >
-            <SkipNextIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />
-          </IconButton>
-        </Box>
-
-        {/* Right Side: Player Controls and Info */}
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            p: 2,
+            px: 2,
+            py: 0,
           }}
         >
-          <CardContent
-            sx={{
-              flex: "1 0 auto",
-              p: 0,
-              pb: 1,
-              "&:last-child": { pb: 1 },
-            }}
-          >
-            <Typography component="div" variant="h6">
-              Ayah {currentTrackIndex}
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              component="div"
-            >
-              Abdur-Rahman As-Sudaisi
-            </Typography>
-          </CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              mb: 2,
-            }}
-          >
-            <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-              Go to Ayah:
-            </Typography>
-            <TextField
-              type="text" // Use 'text' to prevent browser up/down arrows from changing state immediately
-              size="small"
-              sx={{ width: 60 }}
-              // Use internal state for the field value
-              value={internalTrackIndex}
-              // Update internal state on change
-              onChange={handleInternalTrackIndexChange}
-              // Commit the change on defocus
-              onBlur={handleTrackIndexBlur}
-              // Commit the change on Enter key press
-              onKeyDown={handleTrackIndexKeyDown}
-              slotProps={{
-                input: {
-                  min: 0,
-                  max: audioSourceUrl.length - 1,
-                  // Add an aria-label for accessibility
-                  "aria-label": "Go to Ayah Number",
-                },
-              }}
-            />
-            <Typography variant="body2" color="text.secondary">
-              (Total: {audioSourceUrl.length - 1})
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Repeat:{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {currentRepeat + 1}/{repeatCount}
-              </span>
-            </Typography>
-          </Box>
           {/* Repeat Controls */}
-          <Box
-            sx={{
-              maxWidth: "100%",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "1rem",
-              flexDirection: "row",
-              mb: 2,
-            }}
-          >
-            <Typography variant="body2" sx={{ mr: 1 }}>
-              Set Repeats:
-            </Typography>
-            {[1, 3, 5, 10].map((count) => (
-              <Button
-                key={count}
-                variant={repeatCount === count ? "contained" : "outlined"}
-                value={count}
-                onClick={handleClick}
-                size="small"
+          {isExpanded && (
+            <>
+              <Box
+                sx={{
+                  maxWidth: "100%",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                  flexDirection: "row",
+                  mb: 2,
+                }}
               >
-                {count}
-              </Button>
-            ))}
-            <RepeatCountField
-              currentRepeat={currentRepeat}
-              setRepeatCount={setRepeatCount}
-              repeatCount={repeatCount}
-            />
-          </Box>
+                <Typography variant="body2" sx={{ mr: 1 }}>
+                  Set Repeats:
+                </Typography>
+                {[1, 2, 3, 4, 5, 6, 7].map((count) => (
+                  <Button
+                    key={count}
+                    variant={repeatCount === count ? "contained" : "outlined"}
+                    value={count}
+                    onClick={handleClick}
+                    size="small"
+                  >
+                    {count}
+                  </Button>
+                ))}
 
+                <Box
+                  sx={{
+                    maxWidth: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "1rem",
+                    flexDirection: "row",
+                    ml: 5,
+                  }}
+                >
+                  <Button
+                    variant={pauseTime ? "contained" : "outlined"}
+                    onClick={() => setPauseTime(!pauseTime)}
+                    size="small"
+                  >
+                    Pause Between Ayah
+                  </Button>
+                </Box>
+              </Box>
+            </>
+          )}
           {/* Progress Bar and Time */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Typography variant="caption" sx={{ minWidth: 35 }}>
@@ -521,6 +355,17 @@ export default function Player({
             >
               {formatTime(duration)}
             </Typography>
+            <IconButton
+              aria-label={isExpanded ? "Collapse Controls" : "Expand Controls"}
+              onClick={toggleExpanded}
+              size="small"
+            >
+              {isExpanded ? (
+                <KeyboardDoubleArrowDownIcon fontSize="small" />
+              ) : (
+                <KeyboardDoubleArrowUpIcon fontSize="small" />
+              )}
+            </IconButton>
           </Box>
 
           {/* Player Controls */}
@@ -529,8 +374,15 @@ export default function Player({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              px: 5,
             }}
           >
+            <Typography variant="body2" color="text.secondary">
+              Repeat:{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {currentRepeat + 1}/{repeatCount}
+              </span>
+            </Typography>
             <Box>
               <IconButton aria-label="previous" onClick={handlePrevClick}>
                 <SkipPreviousIcon />
