@@ -129,7 +129,7 @@ export default function JuzPage() {
 
   return (
     <Box sx={{ p: 2, pb: isPlayerVisible ? 60 : 2 }}>
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Juz (Para)
         </Typography>
