@@ -15,6 +15,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useState, useRef, useEffect, useCallback } from "react";
 import RepeatCountField from "./playerComponents/RepeatCountField";
+import DATA from "../../surahData.json";
 
 export default function Player({
   surahData,
@@ -29,12 +30,19 @@ export default function Player({
     "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3",
   ];
 
+  let surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
+
   let index = 0;
   if (ayahNumberFirst == 1) {
     index++;
   } // bismillah is already in the source list
 
   for (index; index < totalAyah; index++) {
+    if (surahFirstAyahNumberList.includes(ayahNumberFirst + index)) {
+      audioSourceUrl.push(
+        "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3"
+      );
+    }
     audioSourceUrl.push(
       `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${
         ayahNumberFirst + index
