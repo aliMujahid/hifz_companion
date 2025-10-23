@@ -281,15 +281,24 @@ export default function SurahDetailPage() {
             mb={2}
           >
             <Typography variant="h6">
-              Ayah Text ({ayahStartSurahIndex} -{" "}
+              Surah {surah.englishName} ({ayahStartSurahIndex} -{" "}
               {ayahStartSurahIndex + totalAyah - 1})
             </Typography>
-            <IconButton
-              onClick={() => setIsDrawerOpen(false)}
-              aria-label="Close text drawer"
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              <CloseIcon />
-            </IconButton>
+              <Typography variant="h4" mr={3} dir="rtl" fontFamily={"alQalam"}>
+                سُورَةُ {surah.name}
+              </Typography>
+              <IconButton
+                onClick={() => setIsDrawerOpen(false)}
+                aria-label="Close text drawer"
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
           </Box>
           <Divider />
 
