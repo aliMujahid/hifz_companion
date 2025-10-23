@@ -59,7 +59,6 @@ export default function JuzPage() {
     JUZ[0].ayahNumberFirst
   );
   const [juzData, setJuzdata] = useState(null);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const theme = useTheme();
 
@@ -72,34 +71,13 @@ export default function JuzPage() {
         ayahNumberFirst + i !== 1
       ) {
         //omit bismilla before surah tawba
-        console.log("here!");
+
         texts.push(QURAN["1"]);
       }
       texts.push(QURAN[ayahNumberFirst + i]);
     }
     return texts;
   }, [ayahNumberFirst, numberOfAyahs]);
-
-  const handleJuzChange = (newJuzNumber) => {
-    let finalJuzNumber = newJuzNumber;
-
-    if (newJuzNumber < 0) {
-      finalJuzNumber = totalJuzs; // Loop back to the last Juz
-    } else if (newJuzNumber > totalJuzs) {
-      finalJuzNumber = 0; // Loop back to the first Juz
-    }
-    setSelectedJuz(finalJuzNumber);
-
-    const newJuzData = JUZ[finalJuzNumber];
-    if (newJuzData) {
-      setAyahNumberFirst(newJuzData.ayahNumberFirst);
-      setNumberOfAyahs(newJuzData.totalAyahs);
-    }
-  };
-
-  const togglePlayerVisibility = () => {
-    setIsPlayerVisible(!isPlayerVisible);
-  };
 
   useEffect(() => {
     // Only fetch if a Juz is selected (selectedJuz is not null) and ayahNumberFirst is not 0
@@ -152,7 +130,7 @@ export default function JuzPage() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: isPlayerVisible ? 60 : 2 }}>
+    <Box sx={{ p: 2, pb: 30 }}>
       <Container maxWidth="md">
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Juz (Para)
@@ -229,29 +207,6 @@ export default function JuzPage() {
         </Grid>
       </Container>
 
-      {/* Button to show the player if it's hidden */}
-      {!isPlayerVisible && (
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 16,
-            right: 16,
-            zIndex: 1000,
-          }}
-        >
-          <IconButton
-            color="primary"
-            onClick={togglePlayerVisibility}
-            sx={{
-              bgcolor: "background.paper",
-              boxShadow: 5,
-              "&:hover": { bgcolor: "primary.light" },
-            }}
-          >
-            <KeyboardDoubleArrowUpIcon fontSize="large" />
-          </IconButton>
-        </Box>
-      )}
       {!isDrawerOpen && numberOfAyahs > 0 && (
         <Box
           sx={{
@@ -292,7 +247,7 @@ export default function JuzPage() {
         <Box
           sx={{
             position: "fixed",
-            bottom: isPlayerVisible ? 0 : -500,
+            bottom: 0,
             left: 0,
             right: 0,
             zIndex: 1300,

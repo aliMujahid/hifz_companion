@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import Container from "@mui/material/Container";
 import Player from "../components/Player";
 import AyahButton from "../components/AyahButton";
@@ -16,10 +15,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import data from "../../surahData.json";
 import AYAH_TEXT from "../../indopak-nastaleeq.json";
-
-// Dummy functions for Player props (replace with actual logic if needed)
-const skipToPrevSurah = () => console.log("Skip to previous Surah");
-const skipToNextSurah = () => console.log("Skip to next Surah");
 
 export default function SurahDetailPage() {
   const theme = useTheme();
@@ -45,7 +40,6 @@ export default function SurahDetailPage() {
   }, [surahNumber]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
-  // State to store the selected range: [startAyahNumber, endAyahNumber]
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
 
   const togglePlayerVisibility = () => {
@@ -170,30 +164,6 @@ export default function SurahDetailPage() {
         </Grid>
       </Container>
 
-      {/* Button to show the player if it's hidden */}
-      {!isPlayerVisible && (
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 16,
-            right: 16,
-            zIndex: 1000,
-          }}
-        >
-          <IconButton
-            color="primary"
-            onClick={togglePlayerVisibility}
-            sx={{
-              bgcolor: "background.paper",
-              boxShadow: 5,
-              "&:hover": { bgcolor: "primary.light" },
-            }}
-          >
-            <KeyboardDoubleArrowUpIcon fontSize="large" />
-          </IconButton>
-        </Box>
-      )}
-
       {!isDrawerOpen && totalAyah > 0 && (
         <Box
           sx={{
@@ -234,7 +204,7 @@ export default function SurahDetailPage() {
       <Box
         sx={{
           position: "fixed",
-          bottom: isPlayerVisible ? 0 : -500,
+          bottom: 0,
           left: 0,
           right: 0,
           zIndex: 1300,
@@ -248,12 +218,8 @@ export default function SurahDetailPage() {
         {/* Only render Player if a range is selected and totalAyah > 0 */}
         {ayahNumberFirstGlobal !== null && totalAyah > 0 && (
           <Player
-            surahData={surah}
             ayahNumberFirst={ayahNumberFirstGlobal} // Pass the global index
             totalAyah={totalAyah}
-            togglePlayerVisibility={togglePlayerVisibility}
-            skipToPrevSurah={skipToPrevSurah}
-            skipToNextSurah={skipToNextSurah}
           />
         )}
       </Box>
