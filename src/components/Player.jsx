@@ -38,7 +38,11 @@ export default function Player({
   } // bismillah is already in the source list
 
   for (index; index < totalAyah; index++) {
-    if (surahFirstAyahNumberList.includes(ayahNumberFirst + index)) {
+    if (
+      surahFirstAyahNumberList.includes(ayahNumberFirst + index) &&
+      ayahNumberFirst + index !== 1236
+    ) {
+      //omit bismillas beefore surah tawba
       audioSourceUrl.push(
         "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3"
       );
