@@ -374,7 +374,7 @@ export default function Player({ surahData, ayahNumberFirst, totalAyah }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              px: 5,
+              px: { xs: 0, sm: 1, md: 3, lg: 5 },
             }}
           >
             <Typography variant="body2" color="text.secondary">
