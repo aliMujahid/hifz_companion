@@ -41,45 +41,7 @@ import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp
 import Container from "@mui/material/Container";
 import { useEffect, useState } from "react";
 import Player from "../components/Player";
-import { styled } from "@mui/material/styles";
-
-const JuzCard = styled(Box)(({ theme, selected }) => ({
-  display: "flex",
-  alignItems: "center",
-  marginBottom: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius,
-  border: `1px solid ${
-    selected ? theme.palette.primary.main : theme.palette.divider
-  }`,
-  backgroundColor: selected
-    ? theme.palette.primary.light + "1a"
-    : theme.palette.background.paper, // Subtle background for selected
-  boxShadow: selected ? theme.shadows[2] : "none",
-  cursor: "pointer",
-  transition: "all 0.2s ease-in-out",
-  "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-
-const JuzNumberBox = styled(Box)(({ theme, selected }) => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  width: "100%",
-  minWidth: 50,
-  height: "auto",
-  borderRadius: theme.shape.borderRadius,
-
-  background: selected
-    ? theme.palette.primary.main
-    : "linear-gradient(45deg, #1fae7e, #49c488)", // Specific gradient for unselected state
-  color: theme.palette.common.white,
-  fontWeight: "bold",
-
-  boxShadow: theme.shadows[1],
-}));
+import { useTheme } from "@mui/material/styles";
 
 export default function JuzPage() {
   const [selectedJuz, setSelectedJuz] = useState(0);
@@ -89,6 +51,7 @@ export default function JuzPage() {
   );
   const [juzData, setJuzdata] = useState(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+  const theme = useTheme();
 
   const handleJuzChange = (newJuzNumber) => {
     let finalJuzNumber = newJuzNumber;
@@ -180,7 +143,28 @@ export default function JuzPage() {
           {JUZ.map((juz, index) => {
             const isSelected = selectedJuz === index;
             return (
-              <JuzCard
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: theme.spacing(1.5),
+                  borderRadius: theme.shape.borderRadius,
+                  p: 1,
+                  border: `1px solid ${
+                    isSelected
+                      ? theme.palette.primary.main
+                      : theme.palette.divider
+                  }`,
+                  backgroundColor: isSelected
+                    ? theme.palette.primary.light + "1a"
+                    : theme.palette.background.paper, // Subtle background for selected
+                  boxShadow: isSelected ? theme.shadows[2] : "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
                 key={index}
                 selected={isSelected}
                 onClick={() => {
@@ -192,13 +176,29 @@ export default function JuzPage() {
                   }
                 }}
               >
-                <JuzNumberBox selected={isSelected}>
-                  <Typography variant="caption" sx={{ mb: -0.5 }}>
-                    PARA
-                  </Typography>
-                  <Typography variant="h6">{index + 1}</Typography>
-                </JuzNumberBox>
-              </JuzCard>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "100%",
+                    minWidth: 50,
+                    height: "auto",
+                    borderRadius: theme.shape.borderRadius,
+
+                    background: isSelected
+                      ? theme.palette.primary.main
+                      : "linear-gradient(45deg, #1fae7e, #49c488)", // Specific gradient for unselected state
+                    color: theme.palette.common.white,
+                    fontWeight: "bold",
+
+                    boxShadow: theme.shadows[1],
+                  }}
+                >
+                  <Typography variant="h4">{index + 1}</Typography>
+                </Box>
+              </Box>
             );
           })}
         </Grid>
