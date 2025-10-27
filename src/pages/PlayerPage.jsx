@@ -15,6 +15,7 @@ import TextField from "@mui/material/TextField";
 import DATA from "../../surahData.json";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import QURAN from "../../indopak-nastaleeq-vers.json";
 
 export default function PlayerPage() {
   const theme = useTheme();
@@ -44,6 +45,11 @@ export default function PlayerPage() {
     setShowText(show);
     setGapDraft(String(gap));
   }, []); // Run once on mount
+
+  let ayahTexts = [];
+  for (let i = 0; i < totalAyah; i++) {
+    ayahTexts.push(QURAN[ayahNumberFirst + i]);
+  }
 
   useEffect(() => {
     setGapDraft(String(gapSeconds));
@@ -324,256 +330,267 @@ export default function PlayerPage() {
   }
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        // Conditional styling for the outer Box
-        ...(!showText
-          ? {
-              // If showText is false
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "100vh", // Take full viewport height
-              position: "static", // Remove fixed positioning
-              backgroundColor: theme.palette.background.default, // Match page background
-            }
-          : {
-              // If showText is true
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              zIndex: 1300,
-            }),
-      }}
-    >
-      <Card
+    <>
+      {ayahTexts.map((text) => {
+        return (
+          <Typography fontFamily={"alQalam"} dir="rtl">
+            {text.text}
+          </Typography>
+        );
+      })}
+      <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: theme.palette.background.paper,
-          position: "relative",
-          px: { xs: 1, sm: 2, md: 5 },
-          pt: 2,
-          // Conditional styling for the Card itself
-          ...(!showText && {
-            // If showText is false
-            maxWidth: { xs: "95%", sm: 500 }, // Constrain width for a card look
-            boxShadow: 8, // More prominent shadow
-            borderRadius: 2, // Slightly more rounded corners
-            // Centralize text within the card for better aesthetics
-            "& .MuiTypography-root": {
-              textAlign: "center",
-            },
-          }),
+          width: "100%",
+          // Conditional styling for the outer Box
+          ...(!showText
+            ? {
+                // If showText is false
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh", // Take full viewport height
+                position: "static", // Remove fixed positioning
+                backgroundColor: theme.palette.background.default, // Match page background
+              }
+            : {
+                // If showText is true
+                position: "fixed",
+                bottom: 0,
+                left: 0,
+                zIndex: 1300,
+              }),
         }}
       >
-        <Box
+        <Card
           sx={{
             display: "flex",
             flexDirection: "column",
-            px: 2,
-            py: 0,
+            backgroundColor: theme.palette.background.paper,
+            position: "relative",
+            px: { xs: 1, sm: 2, md: 5 },
+            pt: 2,
+            // Conditional styling for the Card itself
+            ...(!showText && {
+              // If showText is false
+              maxWidth: { xs: "95%", sm: 500 }, // Constrain width for a card look
+              boxShadow: 8, // More prominent shadow
+              borderRadius: 2, // Slightly more rounded corners
+              // Centralize text within the card for better aesthetics
+              "& .MuiTypography-root": {
+                textAlign: "center",
+              },
+            }),
           }}
         >
-          {/* Repeat Controls */}
-          {isExpanded && (
-            <>
-              <Box
-                sx={{
-                  maxWidth: "100%",
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "1rem",
-                  flexDirection: "row",
-                  mb: 2,
-                  justifyContent: "flex-start", // Center controls if no text
-                }}
-              >
-                <Typography variant="body2" sx={{ mr: 1 }}>
-                  Set Repeats:
-                </Typography>
-                {[1, 2, 3, 4, 5, 6, 7].map((count) => (
-                  <Button
-                    key={count}
-                    variant={repeatCount === count ? "contained" : "outlined"}
-                    value={count}
-                    onClick={handleClick}
-                    size="small"
-                  >
-                    {count}
-                  </Button>
-                ))}
-              </Box>
-              <Box
-                sx={{
-                  maxWidth: "100%",
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "1rem",
-                  flexDirection: "row",
-                  ml: !showText ? 0 : 5, // Remove left margin if no text
-                  justifyContent: "flex-start", // Center gap info
-                }}
-              >
-                <Typography variant="body2">Gap:</Typography>
-                <TextField
-                  label="Seconds"
-                  type="number"
-                  size="small"
-                  // Use the draft state
-                  value={gapDraft}
-                  // Update the draft state on change
-                  onChange={(e) => setGapDraft(e.target.value)}
-                  // Commit on blur
-                  onBlur={handleGapCommit}
-                  // Commit on Enter key press
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleGapCommit();
-                    }
-                  }}
-                  sx={{ width: 80 }}
-                />
-              </Box>
-            </>
-          )}
-          {/* Progress Bar and Time */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <Typography variant="caption" sx={{ minWidth: 35 }}>
-              {formatTime(currentTime)}
-            </Typography>
-
-            <Slider
-              min={0}
-              max={duration || 0}
-              value={currentTime}
-              onChangeCommitted={(event, newValue) => {
-                if (audioRef.current) {
-                  audioRef.current.currentTime = newValue;
-                  setCurrentTime(newValue);
-                }
-              }}
-              aria-label="Audio progress"
-              color="primary"
-              sx={{
-                flexGrow: 1,
-                height: 4,
-                "& .MuiSlider-thumb": {
-                  width: 12,
-                  height: 12,
-                  transition: "0.2s",
-                  "&:hover, &.Mui-focusVisible": {
-                    boxShadow: "0 0 0 8px rgba(0,0,0,0.16)",
-                  },
-                },
-              }}
-            />
-
-            <Typography
-              variant="caption"
-              sx={{ minWidth: 35, textAlign: "right" }}
-            >
-              {formatTime(duration)}
-            </Typography>
-            <IconButton
-              aria-label={isExpanded ? "Collapse Controls" : "Expand Controls"}
-              onClick={toggleExpanded}
-              size="small"
-            >
-              {isExpanded ? (
-                <KeyboardDoubleArrowDownIcon fontSize="small" />
-              ) : (
-                <KeyboardDoubleArrowUpIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Box>
-
-          {/* Player Controls */}
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              px: { xs: 0, sm: 1, md: 3, lg: 5 },
-              // Center player controls more if no text
-              flexDirection: !showText ? "column" : "row",
-              gap: !showText ? 2 : 0,
+              flexDirection: "column",
+              px: 2,
+              py: 0,
             }}
           >
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ order: !showText ? 2 : 0 }} // Change order to move it below controls if no text
-            >
-              Repeat:{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {currentRepeat + 1}/{repeatCount}
-              </span>
-            </Typography>
-            <Box sx={{ order: !showText ? 1 : 0 }}>
-              {" "}
-              {/* Move actual controls up if no text */}
-              <IconButton
-                aria-label="previous"
-                onClick={handlePrevClick}
-                disabled={audioSourceUrl.length === 0}
-              >
-                <SkipPreviousIcon />
-              </IconButton>
-              <IconButton
-                aria-label="play/pause"
-                onClick={controllPlayPause}
-                sx={{ mx: 1 }}
-                disabled={audioSourceUrl.length === 0}
-              >
-                {paused ? (
-                  <PlayArrowIcon
-                    sx={{
-                      height: 38,
-                      width: 38,
-                      color: theme.palette.primary.main,
+            {/* Repeat Controls */}
+            {isExpanded && (
+              <>
+                <Box
+                  sx={{
+                    maxWidth: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "1rem",
+                    flexDirection: "row",
+                    mb: 2,
+                    justifyContent: "flex-start", // Center controls if no text
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mr: 1 }}>
+                    Set Repeats:
+                  </Typography>
+                  {[1, 2, 3, 4, 5, 6, 7].map((count) => (
+                    <Button
+                      key={count}
+                      variant={repeatCount === count ? "contained" : "outlined"}
+                      value={count}
+                      onClick={handleClick}
+                      size="small"
+                    >
+                      {count}
+                    </Button>
+                  ))}
+                </Box>
+                <Box
+                  sx={{
+                    maxWidth: "100%",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "1rem",
+                    flexDirection: "row",
+                    ml: !showText ? 0 : 5, // Remove left margin if no text
+                    justifyContent: "flex-start", // Center gap info
+                  }}
+                >
+                  <Typography variant="body2">Gap:</Typography>
+                  <TextField
+                    label="Seconds"
+                    type="number"
+                    size="small"
+                    // Use the draft state
+                    value={gapDraft}
+                    // Update the draft state on change
+                    onChange={(e) => setGapDraft(e.target.value)}
+                    // Commit on blur
+                    onBlur={handleGapCommit}
+                    // Commit on Enter key press
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleGapCommit();
+                      }
                     }}
+                    sx={{ width: 80 }}
                   />
+                </Box>
+              </>
+            )}
+            {/* Progress Bar and Time */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Typography variant="caption" sx={{ minWidth: 35 }}>
+                {formatTime(currentTime)}
+              </Typography>
+
+              <Slider
+                min={0}
+                max={duration || 0}
+                value={currentTime}
+                onChangeCommitted={(event, newValue) => {
+                  if (audioRef.current) {
+                    audioRef.current.currentTime = newValue;
+                    setCurrentTime(newValue);
+                  }
+                }}
+                aria-label="Audio progress"
+                color="primary"
+                sx={{
+                  flexGrow: 1,
+                  height: 4,
+                  "& .MuiSlider-thumb": {
+                    width: 12,
+                    height: 12,
+                    transition: "0.2s",
+                    "&:hover, &.Mui-focusVisible": {
+                      boxShadow: "0 0 0 8px rgba(0,0,0,0.16)",
+                    },
+                  },
+                }}
+              />
+
+              <Typography
+                variant="caption"
+                sx={{ minWidth: 35, textAlign: "right" }}
+              >
+                {formatTime(duration)}
+              </Typography>
+              <IconButton
+                aria-label={
+                  isExpanded ? "Collapse Controls" : "Expand Controls"
+                }
+                onClick={toggleExpanded}
+                size="small"
+              >
+                {isExpanded ? (
+                  <KeyboardDoubleArrowDownIcon fontSize="small" />
                 ) : (
-                  <PauseIcon
-                    sx={{
-                      height: 38,
-                      width: 38,
-                      color: theme.palette.primary.main,
-                    }}
-                  />
+                  <KeyboardDoubleArrowUpIcon fontSize="small" />
                 )}
               </IconButton>
-              <IconButton
-                aria-label="next"
-                onClick={handleNextClick}
-                disabled={audioSourceUrl.length === 0}
-              >
-                <SkipNextIcon />
-              </IconButton>
             </Box>
-            <IconButton
-              onClick={toggleLoop}
-              aria-label="Toggle playlist loop"
-              color={loop ? "primary" : "inherit"}
+
+            {/* Player Controls */}
+            <Box
               sx={{
-                border: loop
-                  ? `2px solid ${theme.palette.primary.main}`
-                  : "2px solid transparent",
-                borderRadius: "50%",
-                p: "8px",
-                transition: "border 0.2s",
-                order: !showText ? 3 : 0, // Change order if no text
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: { xs: 0, sm: 1, md: 3, lg: 5 },
+                // Center player controls more if no text
+                flexDirection: !showText ? "column" : "row",
+                gap: !showText ? 2 : 0,
               }}
             >
-              <RepeatIcon />
-            </IconButton>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ order: !showText ? 2 : 0 }} // Change order to move it below controls if no text
+              >
+                Repeat:{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  {currentRepeat + 1}/{repeatCount}
+                </span>
+              </Typography>
+              <Box sx={{ order: !showText ? 1 : 0 }}>
+                {" "}
+                {/* Move actual controls up if no text */}
+                <IconButton
+                  aria-label="previous"
+                  onClick={handlePrevClick}
+                  disabled={audioSourceUrl.length === 0}
+                >
+                  <SkipPreviousIcon />
+                </IconButton>
+                <IconButton
+                  aria-label="play/pause"
+                  onClick={controllPlayPause}
+                  sx={{ mx: 1 }}
+                  disabled={audioSourceUrl.length === 0}
+                >
+                  {paused ? (
+                    <PlayArrowIcon
+                      sx={{
+                        height: 38,
+                        width: 38,
+                        color: theme.palette.primary.main,
+                      }}
+                    />
+                  ) : (
+                    <PauseIcon
+                      sx={{
+                        height: 38,
+                        width: 38,
+                        color: theme.palette.primary.main,
+                      }}
+                    />
+                  )}
+                </IconButton>
+                <IconButton
+                  aria-label="next"
+                  onClick={handleNextClick}
+                  disabled={audioSourceUrl.length === 0}
+                >
+                  <SkipNextIcon />
+                </IconButton>
+              </Box>
+              <IconButton
+                onClick={toggleLoop}
+                aria-label="Toggle playlist loop"
+                color={loop ? "primary" : "inherit"}
+                sx={{
+                  border: loop
+                    ? `2px solid ${theme.palette.primary.main}`
+                    : "2px solid transparent",
+                  borderRadius: "50%",
+                  p: "8px",
+                  transition: "border 0.2s",
+                  order: !showText ? 3 : 0, // Change order if no text
+                }}
+              >
+                <RepeatIcon />
+              </IconButton>
+            </Box>
           </Box>
-        </Box>
 
-        <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
-      </Card>
-    </Box>
+          <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
+        </Card>
+      </Box>
+    </>
   );
 }
