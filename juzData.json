@@ -1,0 +1,242 @@
+[
+  {
+    "number": 1,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "الٓمّٓ",
+    "firstAyahIndex": 1,
+    "numberOfAyahs": 148
+  },
+  {
+    "number": 2,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "سَیَقُوْلُ السُّفَهَآءُ",
+    "firstAyahIndex": 149,
+    "numberOfAyahs": 111
+  },
+  {
+    "number": 3,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "تِلْكَ الرُّسُلُ",
+    "firstAyahIndex": 260,
+    "numberOfAyahs": 125
+  },
+  {
+    "number": 4,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "لَنْ تَنَالُوا",
+    "firstAyahIndex": 385,
+    "numberOfAyahs": 132
+  },
+  {
+    "number": 5,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَّالْمُحْصَنٰتُ",
+    "firstAyahIndex": 517,
+    "numberOfAyahs": 124
+  },
+  {
+    "number": 6,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "لَا یُحِبُّ اللّٰهُ",
+    "firstAyahIndex": 641,
+    "numberOfAyahs": 111
+  },
+  {
+    "number": 7,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَاِذَا سَمِعُوْا",
+    "firstAyahIndex": 752,
+    "numberOfAyahs": 148
+  },
+  {
+    "number": 8,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَلَوْ اَنَّنَا",
+    "firstAyahIndex": 900,
+    "numberOfAyahs": 142
+  },
+  {
+    "number": 9,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "قَالَ الْمَلَاُ",
+    "firstAyahIndex": 1042,
+    "numberOfAyahs": 159
+  },
+  {
+    "number": 10,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَاعْلَمُوْۤا",
+    "firstAyahIndex": 1201,
+    "numberOfAyahs": 128
+  },
+  {
+    "number": 11,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "یَعْتَذِرُوْنَ",
+    "firstAyahIndex": 1329,
+    "numberOfAyahs": 150
+  },
+  {
+    "number": 12,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَمَا مِنْ دَآبَّةٍ",
+    "firstAyahIndex": 1479,
+    "numberOfAyahs": 170
+  },
+  {
+    "number": 13,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَمَاۤ اُبَرِّئُ",
+    "firstAyahIndex": 1649,
+    "numberOfAyahs": 155
+  },
+  {
+    "number": 14,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "رُبَمَا",
+    "firstAyahIndex": 1804,
+    "numberOfAyahs": 226
+  },
+  {
+    "number": 15,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "سُبْحٰنَ الَّذِیْۤ",
+    "firstAyahIndex": 2030,
+    "numberOfAyahs": 185
+  },
+  {
+    "number": 16,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "قَالَ اَلَمْ",
+    "firstAyahIndex": 2215,
+    "numberOfAyahs": 269
+  },
+  {
+    "number": 17,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "اِقْتَرَبَ لِلنَّاسِ",
+    "firstAyahIndex": 2484,
+    "numberOfAyahs": 190
+  },
+  {
+    "number": 18,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "قَدْ اَفْلَحَ",
+    "firstAyahIndex": 2674,
+    "numberOfAyahs": 202
+  },
+  {
+    "number": 19,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَقَالَ الَّذِیْنَ",
+    "firstAyahIndex": 2876,
+    "numberOfAyahs": 343
+  },
+  {
+    "number": 20,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "اَمَّنْ خَلَقَ",
+    "firstAyahIndex": 3219,
+    "numberOfAyahs": 166
+  },
+  {
+    "number": 21,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "اُتْلُ مَاۤ اُوْحِیَ",
+    "firstAyahIndex": 3385,
+    "numberOfAyahs": 179
+  },
+  {
+    "number": 22,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَمَنْ یَّقْنُتْ",
+    "firstAyahIndex": 3564,
+    "numberOfAyahs": 163
+  },
+  {
+    "number": 23,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "وَمَا لِیَ",
+    "firstAyahIndex": 3727,
+    "numberOfAyahs": 363
+  },
+  {
+    "number": 24,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "فَمَنْ اَظْلَمُ",
+    "firstAyahIndex": 4090,
+    "numberOfAyahs": 175
+  },
+  {
+    "number": 25,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "اِلَیْهِ یُرَدُّ",
+    "firstAyahIndex": 4265,
+    "numberOfAyahs": 246
+  },
+  {
+    "number": 26,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "حٰمٓ",
+    "firstAyahIndex": 4511,
+    "numberOfAyahs": 195
+  },
+  {
+    "number": 27,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "قَالَ فَمَا خَطْبُكُمْ",
+    "firstAyahIndex": 4706,
+    "numberOfAyahs": 399
+  },
+  {
+    "number": 28,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "قَدْ سَمِعَ اللّٰهُ",
+    "firstAyahIndex": 5105,
+    "numberOfAyahs": 137
+  },
+  {
+    "number": 29,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "تَبٰرَكَ الَّذِیْ",
+    "firstAyahIndex": 5242,
+    "numberOfAyahs": 431
+  },
+  {
+    "number": 30,
+    "englishName": "Para",
+    "englishNameTranslation": "",
+    "name": "عَمَّ یَتَسَآءَلُوْنَ",
+    "firstAyahIndex": 5673,
+    "numberOfAyahs": 564
+  }
+]
