@@ -3,20 +3,22 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
-import Player from "../components/Player";
 import AyahButton from "../components/AyahButton";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import Drawer from "@mui/material/Drawer";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";
-import Paper from "@mui/material/Paper";
+import { useParams, useNavigate } from "react-router-dom";
+import Slider from "@mui/material/Slider";
+import TextField from "@mui/material/TextField";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Button from "@mui/material/Button";
+
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
 import data from "../../juzData.json";
-import AYAH_TEXT from "../../indopak-nastaleeq-vers.json";
 import surahInJuz from "../../surahInJuz.json";
-
 
 export default function JuzDetailPage() {
   const theme = useTheme();
@@ -40,12 +42,29 @@ export default function JuzDetailPage() {
   }, [juzNumber]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
+  const [selectAll, setSelectAll] = useState(false);
 
+  const [gapSeconds, setGapSeconds] = useState(0); // Default 2 seconds
+  const [repetition, setRepetition] = useState(1); // Default 1 repetition
+  const [showText, setShowText] = useState(true); // Default show text
+
+  const [repetitionDraft, setRepetitionDraft] = useState(String(repetition));
+  const [gapDraft, setGapDraft] = useState(String(gapSeconds));
+
+  useEffect(() => {
+    setRepetitionDraft(String(repetition));
+  }, [repetition]);
+
+  useEffect(() => {
+    setGapDraft(String(gapSeconds));
+  }, [gapSeconds]);
 
   // Determine the ordered start and end of the selection for display/play
   const [ayahStartIndex, totalAyah] = useMemo(() => {
+    if (selectAll) {
+      return [1, juz.numberOfAyahs];
+    }
     const [start, end] = selectedAyahRange;
     if (start === null || end === null) return [null, 0];
 
@@ -53,7 +72,7 @@ export default function JuzDetailPage() {
     const maxAyah = Math.max(start, end);
     const count = maxAyah - minAyah + 1;
     return [minAyah, count];
-  }, [selectedAyahRange]);
+  }, [selectedAyahRange, selectAll, juz.numberOfAyahs]);
 
   // Calculate the global index of the first ayah for the Player component
   // Assuming `juz.firstAyahIndex` is the global index of the first ayah of the juz.
@@ -62,22 +81,6 @@ export default function JuzDetailPage() {
     // Calculate the global ayah index (1-based global ayah number)
     return juz.firstAyahIndex + ayahStartIndex - 1;
   }, [juz.firstAyahIndex, ayahStartIndex]);
-
-  // Logic to fetch the Ayah Texts based on the selection
-  const ayahTexts = useMemo(() => {
-    if (ayahStartIndex === null || totalAyah === 0 || juz.number === 0)
-      return [];
-
-    const texts = [];
-    for (let i = 0; i < totalAyah; i++) {
-      
-      const ayahKey = ayahNumberFirstGlobal + i;
-      if (AYAH_TEXT[ayahKey]) {
-        texts.push(AYAH_TEXT[ayahKey]);
-      }
-    }
-    return texts;
-  }, [ayahStartIndex, totalAyah, juz.number]);
 
   // Effect to open the drawer when a full range is selected
   useEffect(() => {
@@ -90,6 +93,14 @@ export default function JuzDetailPage() {
 
   // Handle a click on an AyahButton
   const handleAyahSelection = (ayahNumber) => {
+    // If selectAll is true, clear it first
+    if (selectAll) {
+      setSelectAll(false);
+      // Start a new selection from the clicked ayah
+      setSelectedAyahRange([ayahNumber, null]);
+      return;
+    }
+
     const [start, end] = selectedAyahRange;
 
     if (start === null) {
@@ -98,10 +109,6 @@ export default function JuzDetailPage() {
     } else if (end === null) {
       // Second click: Set the end and finalize the range
       setSelectedAyahRange([start, ayahNumber]);
-      // Optionally show player immediately after selection
-      if (!isPlayerVisible) {
-        setIsPlayerVisible(true);
-      }
     } else {
       // Third click (or beyond): Start a new selection
       // We set the new start and clear the end
@@ -111,6 +118,8 @@ export default function JuzDetailPage() {
 
   // Checks if an ayah number is within the selected range (inclusive)
   const isAyahSelected = (ayahNumber) => {
+    if (selectAll) return true;
+
     const [start, end] = selectedAyahRange;
 
     if (start === null) return false;
@@ -125,60 +134,120 @@ export default function JuzDetailPage() {
     return ayahNumber >= minAyah && ayahNumber <= maxAyah;
   };
 
-  const currentJuzSurahs = surahInJuz[juzNumber - 1] 
- ? surahInJuz[juzNumber - 1].surahs 
-: [];
+  const handleSelectAllChange = (event) => {
+    const isChecked = event.target.checked;
+    setSelectAll(isChecked);
 
+    // Clear the manual selection when "Select All" is checked
+    if (isChecked) {
+      setSelectedAyahRange([null, null]);
+    }
+  };
 
- let juzLocalAyahIndex = 1;
+  const handleRepetitionCommit = () => {
+    const num = parseInt(repetitionDraft, 10);
+
+    // Validation Logic
+    if (isNaN(num) || num < 1 || num > 1000) {
+      // Reset the draft state to the last valid value if input is invalid
+      setRepetitionDraft(String(repetition));
+    } else {
+      // Update the main repetition state
+      setRepetition(num);
+    }
+  };
+
+  const handleGapCommit = () => {
+    // Parse the draft value as a float to allow decimal seconds
+    const num = parseFloat(gapDraft);
+
+    // Validation Logic (0 to 30 seconds)
+    if (isNaN(num) || num < 0 || num > 1000) {
+      // Reset the draft state to the last valid value
+      setGapDraft(String(gapSeconds));
+    } else {
+      // Update the main gapSeconds state
+      setGapSeconds(num);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleStartListening = () => {
+    if (ayahNumberFirstGlobal === null || totalAyah === 0) return;
+
+    handleRepetitionCommit();
+    handleGapCommit();
+
+    // Construct query string with all required parameters
+    const queryParams = new URLSearchParams({
+      start: ayahNumberFirstGlobal,
+      count: totalAyah,
+      gap: gapSeconds,
+      rep: repetition,
+      show: showText ? "true" : "false",
+    }).toString();
+
+    // Navigate to a new playback page (e.g., '/play') with query parameters
+    // You should define a route for this new page.
+    navigate(`/play?${queryParams}`);
+  };
+
+  const ayahRangeText =
+    ayahStartIndex !== null && totalAyah > 0
+      ? `${ayahStartIndex} - ${ayahStartIndex + totalAyah - 1}`
+      : "None Selected";
+
+  const currentJuzSurahs = surahInJuz[juzNumber - 1]
+    ? surahInJuz[juzNumber - 1].surahs
+    : [];
+
+  let juzLocalAyahIndex = 1;
 
   return (
-    <Box sx={{ p: 2, pb: isPlayerVisible ? 30 : 2 }}>
-      <Typography
-          variant="h4"
-          fontFamily={"alQalam"}
-          component="h1"
-          gutterBottom
-          align="center"
-        >
-          {juz.name}
-        </Typography>
-{
-    currentJuzSurahs.map((surah)=>{
-        return       <Container maxWidth="md"> 
-              <Typography
-          variant="h4"
-          fontFamily={"alQalam"}
-          component="h1"
-          gutterBottom
-          align="center"
-        >
-          {surah.name}
-        </Typography>   
-        <Grid
-          container
-          spacing={2}
-          justifyContent="center"
-          sx={{ width: "100%" }}
-        >
-          {surah.ayahs.map((ayah) => { 
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h4" component="h1" gutterBottom align="center">
+        Juz (Para) {juz.number}
+      </Typography>
+      <Divider />
+      {currentJuzSurahs.map((surah) => {
+        return (
+          <Container maxWidth="lg" sx={{ pt: 5 }} key={surah.surah}>
+            <Typography
+              variant="h4"
+              fontFamily={"alQalam"}
+              component="h1"
+              gutterBottom
+              align="center"
+            >
+              {surah.name}
+            </Typography>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="left"
+              sx={{ width: "100%" }}
+            >
+              {surah.ayahs.map((ayah) => {
+                const currentJuzLocalIndex = juzLocalAyahIndex;
 
-            const currentJuzLocalIndex = juzLocalAyahIndex;
-                
-            juzLocalAyahIndex++;
+                juzLocalAyahIndex++;
 
-            return <Grid item key={`${surah.surah}:${ayah}`}>
-              <AyahButton
-                ayah={ayah}
-                isSelected={isAyahSelected(currentJuzLocalIndex)}
-                onClick={() => handleAyahSelection(currentJuzLocalIndex)}
-              />
+                return (
+                  <Grid item key={`${surah.surah}:${ayah}`}>
+                    <AyahButton
+                      ayah={ayah}
+                      isSelected={isAyahSelected(currentJuzLocalIndex)}
+                      onClick={() => handleAyahSelection(currentJuzLocalIndex)}
+                    />
+                  </Grid>
+                );
+              })}
             </Grid>
-          })}
-        </Grid>
-      </Container>
-    })
-}
+            <Divider />
+          </Container>
+        );
+      })}
 
       {!isDrawerOpen && totalAyah > 0 && (
         <Box
@@ -216,31 +285,7 @@ export default function JuzDetailPage() {
         </Box>
       )}
 
-      {/* Player component fixed at the bottom */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1300,
-          p: 1,
-          width: "100%",
-          boxSizing: "border-box",
-          transition: "bottom 0.3s ease-in-out",
-          borderTop: "1px solid #e0e0e0", // Optional styling
-        }}
-      >
-        {/* Only render Player if a range is selected and totalAyah > 0 */}
-        {ayahNumberFirstGlobal !== null && totalAyah > 0 && (
-          <Player
-            ayahNumberFirst={ayahNumberFirstGlobal} // Pass the global index
-            totalAyah={totalAyah}
-          />
-        )}
-      </Box>
-
-      {/* -------------------- RIGHT DRAWER FOR AYAH TEXTS -------------------- */}
+      {/* -------------------- RIGHT DRAWER FOR PLAYBACK SETTINGS -------------------- */}
       <Drawer
         anchor="right"
         open={isDrawerOpen}
@@ -262,53 +307,173 @@ export default function JuzDetailPage() {
             alignItems="center"
             mb={2}
           >
-            <Typography variant="h6">
-              juz {juz.englishName} ({ayahStartIndex} -{" "}
-              {ayahStartIndex + totalAyah - 1})
-            </Typography>
             <Box
               display="flex"
               justifyContent="space-between"
               alignItems="center"
             >
-              <Typography variant="h4" mr={3} dir="rtl" fontFamily={"alQalam"}>
-              {juz.name}
-              </Typography>
-              <IconButton
-                onClick={() => setIsDrawerOpen(false)}
-                aria-label="Close text drawer"
-              >
-                <CloseIcon />
-              </IconButton>
+              <Box>
+                <Typography
+                  variant="h4"
+                  mr={3}
+                  dir="rtl"
+                  fontFamily={"alQalam"}
+                >
+                  {juz.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Juz No. {juz.number} | Total Ayahs: {juz.numberOfAyahs}
+                </Typography>
+              </Box>
             </Box>
+            <IconButton
+              onClick={() => setIsDrawerOpen(false)}
+              aria-label="Close text drawer"
+            >
+              <CloseIcon />
+            </IconButton>
           </Box>
           <Divider />
 
-          {/* Display the Ayah Texts */}
-          <Box sx={{ mt: 2, height: "calc(100vh - 100px)", overflowY: "auto" }}>
-            {ayahTexts.length > 0 ? (
-              ayahTexts.map((ayah, index) => (
-                <Paper key={index} elevation={1} sx={{ p: 2, mb: 2 }}>
-                  <Typography
-                    dir="rtl"
-                    variant="body1"
-                    sx={{
-                      fontFamily:
-                        "AlQalam, 'Arial Unicode MS', Arial, sans-serif",
-                      fontSize: "1.8rem",
-                      lineHeight: 2.2,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {ayah.text}
-                  </Typography>
-                </Paper>
-              ))
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Select a range of Ayahs to view the text.
-              </Typography>
-            )}
+          {/* Settings Section */}
+          <Box sx={{ mt: 3 }}>
+            {/* Selected Ayahs Display */}
+            <Typography variant="body1" fontWeight="bold" gutterBottom>
+              Selected Ayahs (Juz-Local):
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={selectAll}
+                  onChange={handleSelectAllChange}
+                />
+              }
+              label="Select All Ayahs"
+              sx={{ mb: 1 }} // Reduced margin to bring it closer to the text
+            />
+            <Box
+              sx={{
+                p: 1.5,
+                mb: 3,
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                borderRadius: 1,
+                textAlign: "center",
+              }}
+            >
+              <Typography variant="h5">{ayahRangeText}</Typography>
+            </Box>
+
+            {/* Repetition Input */}
+            <Typography variant="body1" gutterBottom>
+              **Repetition of each ayah:**
+            </Typography>
+            <TextField
+              fullWidth
+              label="Number of Repeats"
+              type="number"
+              value={repetitionDraft}
+              onChange={(e) => setRepetitionDraft(e.target.value)}
+              // Commit on blur (when focus leaves the field)
+              onBlur={handleRepetitionCommit}
+              // Commit on Enter key press
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleRepetitionCommit();
+                }
+              }}
+              // Display an error if the draft value is invalid (e.g., if we reset the draft after an invalid commit attempt)
+              error={
+                parseInt(repetitionDraft, 10) < 1 ||
+                parseInt(repetitionDraft, 10) > 1000 ||
+                isNaN(parseInt(repetitionDraft, 10))
+              }
+              helperText={
+                parseInt(repetitionDraft, 10) < 1 ||
+                parseInt(repetitionDraft, 10) > 1000 ||
+                isNaN(parseInt(repetitionDraft, 10))
+                  ? "Value must be between 1 and 100."
+                  : ""
+              }
+              inputProps={{ min: 1, max: 100 }}
+              sx={{ mb: 3 }}
+            />
+
+            {/* Gap Setting */}
+            <Typography variant="body1" gutterBottom>
+              **Set a gap (in seconds) in between ayahs:**
+            </Typography>
+            <TextField
+              fullWidth
+              label="Gap (seconds)"
+              type="number"
+              value={gapDraft}
+              // Update the draft state on change
+              onChange={(e) => setGapDraft(e.target.value)}
+              // Commit on blur
+              onBlur={handleGapCommit}
+              // Commit on Enter key press
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleGapCommit();
+                }
+              }}
+              // Validation for display
+              error={
+                parseFloat(gapDraft) < 0 ||
+                parseFloat(gapDraft) > 1000 ||
+                isNaN(parseFloat(gapDraft))
+              }
+              helperText={
+                parseFloat(gapDraft) < 0 ||
+                parseFloat(gapDraft) > 1000 ||
+                isNaN(parseFloat(gapDraft))
+                  ? "Value must be between 0 and 30 seconds."
+                  : ""
+              }
+              inputProps={{ min: 0, max: 30 }}
+              sx={{ mb: 1 }}
+            />
+
+            {/* Gap Slider */}
+            <Slider
+              value={gapSeconds}
+              onChange={(_, newValue) => setGapSeconds(newValue)}
+              min={0}
+              max={30}
+              step={1}
+              marks={[
+                { value: 0, label: "0s" },
+                { value: 15, label: "15s" },
+                { value: 30, label: "30s" },
+              ]}
+              valueLabelDisplay="auto"
+              sx={{ mb: 3 }}
+            />
+
+            {/* Show Ayah Text Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showText}
+                  onChange={(e) => setShowText(e.target.checked)}
+                />
+              }
+              label="Show Ayah Text During Playback"
+              sx={{ mb: 4 }}
+            />
+
+            {/* Start Listening Button */}
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              onClick={handleStartListening}
+              disabled={ayahNumberFirstGlobal === null || totalAyah === 0}
+            >
+              Start Listening ({totalAyah} Ayahs)
+            </Button>
           </Box>
         </Box>
       </Drawer>
@@ -316,5 +481,3 @@ export default function JuzDetailPage() {
     </Box>
   );
 }
-
-
