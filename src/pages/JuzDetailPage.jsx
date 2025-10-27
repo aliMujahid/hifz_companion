@@ -191,14 +191,8 @@ export default function JuzDetailPage() {
   return (
     <Box sx={{ p: 2 }}>
       {/* ... (Juz content remains the same) */}
-      <Typography
-        variant="h4"
-        fontFamily={"alQalam"}
-        component="h1"
-        gutterBottom
-        align="center"
-      >
-        {juz.name}
+      <Typography variant="h4" component="h1" gutterBottom align="center">
+        Juz (Para) {juz.number}
       </Typography>
       {currentJuzSurahs.map((surah) => {
         return (
@@ -271,7 +265,6 @@ export default function JuzDetailPage() {
         </Box>
       )}
 
-      {/* NEW: Use the reusable PlaybackSettingsDrawer component */}
       <PlaybackSettingsDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}

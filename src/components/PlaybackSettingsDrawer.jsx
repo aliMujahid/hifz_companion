@@ -19,6 +19,7 @@ export default function PlaybackSettingsDrawer({
   onClose,
   juzName,
   juzNumber,
+  isSurah = false,
   totalJuzAyahs,
   ayahRangeText,
   totalAyahsSelected,
@@ -92,7 +93,8 @@ export default function PlaybackSettingsDrawer({
                 {juzName}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Juz No. {juzNumber} | Total Ayahs: {totalJuzAyahs}
+                {isSurah ? "Surah" : "Juz"} No. {juzNumber} | Total Ayahs:{" "}
+                {totalJuzAyahs}
               </Typography>
             </Box>
           </Box>

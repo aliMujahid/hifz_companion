@@ -3,18 +3,13 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
-import Player from "../components/Player";
 import AyahButton from "../components/AyahButton";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import Drawer from "@mui/material/Drawer";
-import CloseIcon from "@mui/icons-material/Close";
-import Divider from "@mui/material/Divider";
-import Paper from "@mui/material/Paper";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import PlaybackSettingsDrawer from "../components/PlaybackSettingsDrawer";
 import data from "../../surahData.json";
-import AYAH_TEXT from "../../indopak-nastaleeq.json";
 
 export default function SurahDetailPage() {
   const theme = useTheme();
@@ -39,12 +34,23 @@ export default function SurahDetailPage() {
     };
   }, [surahNumber]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
+  const [selectAll, setSelectAll] = useState(false); // Select All state
 
-  const togglePlayerVisibility = () => {
-    setIsPlayerVisible(!isPlayerVisible);
-  };
+  const [gapSeconds, setGapSeconds] = useState(2); // Default 2 seconds
+  const [repetition, setRepetition] = useState(1); // Default 1 repetition
+  const [showText, setShowText] = useState(true); // Default show text
+
+  const [repetitionDraft, setRepetitionDraft] = useState(String(repetition));
+  const [gapDraft, setGapDraft] = useState(String(gapSeconds));
+
+  useEffect(() => {
+    setRepetitionDraft(String(repetition));
+  }, [repetition]);
+
+  useEffect(() => {
+    setGapDraft(String(gapSeconds));
+  }, [gapSeconds]);
 
   // Determine the ordered start and end of the selection for display/play
   const [ayahStartSurahIndex, totalAyah] = useMemo(() => {
@@ -65,22 +71,6 @@ export default function SurahDetailPage() {
     return surah.firstAyahIndex + ayahStartSurahIndex - 1;
   }, [surah.firstAyahIndex, ayahStartSurahIndex]);
 
-  // Logic to fetch the Ayah Texts based on the selection
-  const ayahTexts = useMemo(() => {
-    if (ayahStartSurahIndex === null || totalAyah === 0 || surah.number === 0)
-      return [];
-
-    const texts = [];
-    for (let i = 0; i < totalAyah; i++) {
-      // The key format is "SurahNumber:AyahNumber_within_Surah"
-      const ayahKey = `${surah.number}:${ayahStartSurahIndex + i}`;
-      if (AYAH_TEXT[ayahKey]) {
-        texts.push(AYAH_TEXT[ayahKey]);
-      }
-    }
-    return texts;
-  }, [ayahStartSurahIndex, totalAyah, surah.number]);
-
   // Effect to open the drawer when a full range is selected
   useEffect(() => {
     const [start, end] = selectedAyahRange;
@@ -92,6 +82,12 @@ export default function SurahDetailPage() {
 
   // Handle a click on an AyahButton
   const handleAyahSelection = (ayahNumber) => {
+    if (selectAll) {
+      setSelectAll(false);
+      setSelectedAyahRange([ayahNumber, null]);
+      return;
+    }
+
     const [start, end] = selectedAyahRange;
 
     if (start === null) {
@@ -100,10 +96,6 @@ export default function SurahDetailPage() {
     } else if (end === null) {
       // Second click: Set the end and finalize the range
       setSelectedAyahRange([start, ayahNumber]);
-      // Optionally show player immediately after selection
-      if (!isPlayerVisible) {
-        setIsPlayerVisible(true);
-      }
     } else {
       // Third click (or beyond): Start a new selection
       // We set the new start and clear the end
@@ -113,6 +105,8 @@ export default function SurahDetailPage() {
 
   // Checks if an ayah number is within the selected range (inclusive)
   const isAyahSelected = (ayahNumber) => {
+    if (selectAll) return true;
+
     const [start, end] = selectedAyahRange;
 
     if (start === null) return false;
@@ -127,14 +121,73 @@ export default function SurahDetailPage() {
     return ayahNumber >= minAyah && ayahNumber <= maxAyah;
   };
 
-  // Create an array of ayah numbers for mapping (simplified)
+  // Repetition Handlers
+  const handleRepetitionCommit = () => {
+    const num = parseInt(repetitionDraft, 10);
+    if (isNaN(num) || num < 1 || num > 100) {
+      setRepetitionDraft(String(repetition));
+    } else {
+      setRepetition(num);
+    }
+  };
+  const handleRepetitionDraftChange = (e) => setRepetitionDraft(e.target.value);
+
+  // Gap Handlers
+  const handleGapCommit = () => {
+    const num = parseFloat(gapDraft);
+    if (isNaN(num) || num < 0 || num > 30) {
+      setGapDraft(String(gapSeconds));
+    } else {
+      setGapSeconds(num);
+    }
+  };
+  const handleGapDraftChange = (e) => setGapDraft(e.target.value);
+  const handleGapSliderChange = (_, newValue) => setGapSeconds(newValue);
+
+  // Show Text Handler
+  const handleShowTextChange = (e) => setShowText(e.target.checked);
+
+  // Select All Handler
+  const handleSelectAllChange = (event) => {
+    const isChecked = event.target.checked;
+    setSelectAll(isChecked);
+    if (isChecked) {
+      setSelectedAyahRange([null, null]);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleStartListening = () => {
+    if (ayahNumberFirstGlobal === null || totalAyah === 0) return;
+
+    handleRepetitionCommit();
+    handleGapCommit();
+
+    const queryParams = new URLSearchParams({
+      start: ayahNumberFirstGlobal,
+      count: totalAyah,
+      gap: gapSeconds,
+      rep: repetition,
+      show: showText ? "true" : "false",
+    }).toString();
+
+    navigate(`/play?${queryParams}`);
+  };
+
+  const ayahRangeText =
+    ayahStartSurahIndex !== null && totalAyah > 0
+      ? `${ayahStartSurahIndex} - ${ayahStartSurahIndex + totalAyah - 1}`
+      : "None Selected";
+
+  // Create an array of ayah numbers for mapping
   const ayahNumbers = Array.from(
     { length: surah.numberOfAyahs },
     (_, i) => i + 1
   );
 
   return (
-    <Box sx={{ p: 2, pb: isPlayerVisible ? 30 : 2 }}>
+    <Box sx={{ p: 2 }}>
       <Container maxWidth="md">
         <Typography
           variant="h4"
@@ -200,103 +253,36 @@ export default function SurahDetailPage() {
         </Box>
       )}
 
-      {/* Player component fixed at the bottom */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1300,
-          p: 1,
-          width: "100%",
-          boxSizing: "border-box",
-          transition: "bottom 0.3s ease-in-out",
-          borderTop: "1px solid #e0e0e0", // Optional styling
-        }}
-      >
-        {/* Only render Player if a range is selected and totalAyah > 0 */}
-        {ayahNumberFirstGlobal !== null && totalAyah > 0 && (
-          <Player
-            ayahNumberFirst={ayahNumberFirstGlobal} // Pass the global index
-            totalAyah={totalAyah}
-          />
-        )}
-      </Box>
-
-      {/* -------------------- RIGHT DRAWER FOR AYAH TEXTS -------------------- */}
-      <Drawer
-        anchor="right"
-        open={isDrawerOpen}
+      <PlaybackSettingsDrawer
+        isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        sx={{
-          // Style the Paper component of the Drawer
-          "& .MuiDrawer-paper": {
-            width: { xs: "90%", sm: 500, md: 900 }, // Responsive width
-            maxWidth: "100%",
-            boxSizing: "border-box",
-            backgroundColor: theme.palette.background.default,
-          },
-        }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography variant="h6">
-              Surah {surah.englishName} ({ayahStartSurahIndex} -{" "}
-              {ayahStartSurahIndex + totalAyah - 1})
-            </Typography>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography variant="h4" mr={3} dir="rtl" fontFamily={"alQalam"}>
-                سُورَةُ {surah.name}
-              </Typography>
-              <IconButton
-                onClick={() => setIsDrawerOpen(false)}
-                aria-label="Close text drawer"
-              >
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          </Box>
-          <Divider />
-
-          {/* Display the Ayah Texts */}
-          <Box sx={{ mt: 2, height: "calc(100vh - 100px)", overflowY: "auto" }}>
-            {ayahTexts.length > 0 ? (
-              ayahTexts.map((ayah, index) => (
-                <Paper key={index} elevation={1} sx={{ p: 2, mb: 2 }}>
-                  <Typography
-                    dir="rtl"
-                    variant="body1"
-                    sx={{
-                      fontFamily:
-                        "AlQalam, 'Arial Unicode MS', Arial, sans-serif",
-                      fontSize: "1.8rem",
-                      lineHeight: 2.2,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {ayah.text}
-                  </Typography>
-                </Paper>
-              ))
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Select a range of Ayahs to view the text.
-              </Typography>
-            )}
-          </Box>
-        </Box>
-      </Drawer>
-      {/* ------------------ END RIGHT DRAWER ------------------ */}
+        // Juz Info Props
+        juzName={surah.name}
+        juzNumber={surah.number}
+        isSurah={true}
+        totalJuzAyahs={surah.numberOfAyahs}
+        ayahRangeText={ayahRangeText}
+        totalAyahsSelected={totalAyah}
+        // Repetition Props
+        repetitionDraft={repetitionDraft}
+        onRepetitionChange={handleRepetitionDraftChange}
+        onRepetitionCommit={handleRepetitionCommit}
+        // Gap Props
+        gapSeconds={gapSeconds}
+        gapDraft={gapDraft}
+        onGapDraftChange={handleGapDraftChange}
+        onGapCommit={handleGapCommit}
+        onGapSliderChange={handleGapSliderChange}
+        // Show Text Prop
+        showText={showText}
+        onShowTextChange={handleShowTextChange}
+        // Select All Props
+        selectAll={selectAll}
+        onSelectAllChange={handleSelectAllChange}
+        // Action Prop
+        onStartListening={handleStartListening}
+        isDisabled={ayahNumberFirstGlobal === null || totalAyah === 0}
+      />
     </Box>
   );
 }
