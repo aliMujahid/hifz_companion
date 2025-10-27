@@ -11,28 +11,23 @@ import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"; // Added useMemo
-
+import TextField from "@mui/material/TextField";
 import DATA from "../../surahData.json";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
-// Component now accepts no props, as settings come from the URL
 export default function PlayerPage() {
   const theme = useTheme();
 
-  // 1. STATE FOR URL-BASED PLAYBACK SETTINGS
   const [ayahNumberFirst, setAyahNumberFirst] = useState(null);
   const [totalAyah, setTotalAyah] = useState(0);
-  const [gapSeconds, setGapSeconds] = useState(0); // Corresponds to `pauseTime` logic
+  const [gapSeconds, setGapSeconds] = useState(0);
 
-  // Repetition is now initialized from the URL
   const [repeatCount, setRepeatCount] = useState(1);
-  // Show Text setting (though not used in player logic, useful for state tracking)
-  // const [showText, setShowText] = useState(true);
+  const [showText, setShowText] = useState(true);
+  const [gapDraft, setGapDraft] = useState(0);
 
-  // 2. EXTRACT SETTINGS FROM URL ONCE
   useEffect(() => {
-    // Get the query string from the window's location
     const params = new URLSearchParams(window.location.search);
 
     // Parse and validate parameters
@@ -40,14 +35,32 @@ export default function PlayerPage() {
     const count = parseInt(params.get("count"), 10) || 1;
     const rep = parseInt(params.get("rep"), 10) || 1;
     const gap = parseFloat(params.get("gap")) || 0;
-    // const show = params.get('show') === 'true'; // If needed for the text display logic
+    const show = params.get("show") === "true";
 
     setAyahNumberFirst(start);
     setTotalAyah(count);
     setRepeatCount(rep);
     setGapSeconds(gap);
-    // setShowText(show);
+    setShowText(show);
+    setGapDraft(String(gap));
   }, []); // Run once on mount
+
+  useEffect(() => {
+    setGapDraft(String(gapSeconds));
+  }, [gapSeconds]);
+
+  const handleGapCommit = () => {
+    const num = parseFloat(gapDraft);
+
+    // Validation Logic (0 to 30 seconds)
+    if (isNaN(num) || num < 0 || num > 1000) {
+      // Reset the draft state to the last valid value if input is invalid
+      setGapDraft(String(gapSeconds));
+    } else {
+      // Update the main gapSeconds state
+      setGapSeconds(num);
+    }
+  };
 
   // 3. MEMOIZE THE AUDIO SOURCE URL LIST GENERATION
   const audioSourceUrl = useMemo(() => {
@@ -314,10 +327,24 @@ export default function PlayerPage() {
     <Box
       sx={{
         width: "100%",
-        position: "fixed", // Keep the player visible
-        bottom: 0,
-        left: 0,
-        zIndex: 1300,
+        // Conditional styling for the outer Box
+        ...(!showText
+          ? {
+              // If showText is false
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "100vh", // Take full viewport height
+              position: "static", // Remove fixed positioning
+              backgroundColor: theme.palette.background.default, // Match page background
+            }
+          : {
+              // If showText is true
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              zIndex: 1300,
+            }),
       }}
     >
       <Card
@@ -328,6 +355,17 @@ export default function PlayerPage() {
           position: "relative",
           px: { xs: 1, sm: 2, md: 5 },
           pt: 2,
+          // Conditional styling for the Card itself
+          ...(!showText && {
+            // If showText is false
+            maxWidth: { xs: "95%", sm: 500 }, // Constrain width for a card look
+            boxShadow: 8, // More prominent shadow
+            borderRadius: 2, // Slightly more rounded corners
+            // Centralize text within the card for better aesthetics
+            "& .MuiTypography-root": {
+              textAlign: "center",
+            },
+          }),
         }}
       >
         <Box
@@ -349,6 +387,7 @@ export default function PlayerPage() {
                   gap: "1rem",
                   flexDirection: "row",
                   mb: 2,
+                  justifyContent: "flex-start", // Center controls if no text
                 }}
               >
                 <Typography variant="body2" sx={{ mr: 1 }}>
@@ -365,28 +404,41 @@ export default function PlayerPage() {
                     {count}
                   </Button>
                 ))}
-
-                <Box
-                  sx={{
-                    maxWidth: "100%",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "1rem",
-                    flexDirection: "row",
-                    ml: 5,
+              </Box>
+              <Box
+                sx={{
+                  maxWidth: "100%",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                  flexDirection: "row",
+                  ml: !showText ? 0 : 5, // Remove left margin if no text
+                  justifyContent: "flex-start", // Center gap info
+                }}
+              >
+                <Typography variant="body2">Gap:</Typography>
+                <TextField
+                  label="Seconds"
+                  type="number"
+                  size="small"
+                  // Use the draft state
+                  value={gapDraft}
+                  // Update the draft state on change
+                  onChange={(e) => setGapDraft(e.target.value)}
+                  // Commit on blur
+                  onBlur={handleGapCommit}
+                  // Commit on Enter key press
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleGapCommit();
+                    }
                   }}
-                >
-                  {/* Removed the Button for Pause Between Ayah, as it's now driven by gapSeconds from URL */}
-                  {/* Displaying gapSeconds state value */}
-                  <Typography variant="body2" sx={{ alignSelf: "center" }}>
-                    **Gap:** {gapSeconds}s
-                  </Typography>
-                </Box>
+                  sx={{ width: 80 }}
+                />
               </Box>
             </>
           )}
           {/* Progress Bar and Time */}
-          {/* ... (rest of the component structure remains the same) */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Typography variant="caption" sx={{ minWidth: 35 }}>
               {formatTime(currentTime)}
@@ -444,15 +496,24 @@ export default function PlayerPage() {
               alignItems: "center",
               justifyContent: "space-between",
               px: { xs: 0, sm: 1, md: 3, lg: 5 },
+              // Center player controls more if no text
+              flexDirection: !showText ? "column" : "row",
+              gap: !showText ? 2 : 0,
             }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ order: !showText ? 2 : 0 }} // Change order to move it below controls if no text
+            >
               Repeat:{" "}
               <span style={{ fontWeight: "bold" }}>
                 {currentRepeat + 1}/{repeatCount}
               </span>
             </Typography>
-            <Box>
+            <Box sx={{ order: !showText ? 1 : 0 }}>
+              {" "}
+              {/* Move actual controls up if no text */}
               <IconButton
                 aria-label="previous"
                 onClick={handlePrevClick}
@@ -503,6 +564,7 @@ export default function PlayerPage() {
                 borderRadius: "50%",
                 p: "8px",
                 transition: "border 0.2s",
+                order: !showText ? 3 : 0, // Change order if no text
               }}
             >
               <RepeatIcon />
