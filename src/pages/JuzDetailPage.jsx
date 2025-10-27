@@ -17,7 +17,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState, useMemo } from "react";
 import data from "../../juzData.json";
-import AYAH_TEXT from "../../indopak-nastaleeq-vers.json";
 import surahInJuz from "../../surahInJuz.json";
 import { Divider } from "@mui/material";
 
@@ -42,7 +41,6 @@ export default function JuzDetailPage() {
   }, [juzNumber]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
   const [selectAll, setSelectAll] = useState(false); // Select All state
 
@@ -104,9 +102,6 @@ export default function JuzDetailPage() {
       setSelectedAyahRange([ayahNumber, null]);
     } else if (end === null) {
       setSelectedAyahRange([start, ayahNumber]);
-      if (!isPlayerVisible) {
-        setIsPlayerVisible(true);
-      }
     } else {
       setSelectedAyahRange([ayahNumber, null]);
     }
