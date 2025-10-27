@@ -1,5 +1,3 @@
-// src/pages/JuzDetailPage.jsx
-
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -7,21 +5,14 @@ import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
 import AyahButton from "../components/AyahButton";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-// REMOVED: Drawer, CloseIcon, Divider, Slider, TextField, Checkbox, FormControlLabel, Button
-// Import the new Drawer component
 import PlaybackSettingsDrawer from "../components/PlaybackSettingsDrawer";
-
-import { useParams, useNavigate } from "react-router-dom";
-// REMOVED: Slider, TextField, Checkbox, FormControlLabel, Button
-
-import { useTheme } from "@mui/material/styles";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import data from "../../juzData.json";
 import surahInJuz from "../../surahInJuz.json";
 import { Divider } from "@mui/material";
 
 export default function JuzDetailPage() {
-  const theme = useTheme();
   const { juzNumber: juzNumberParam } = useParams();
   const juzNumber = parseInt(juzNumberParam);
 
@@ -43,21 +34,6 @@ export default function JuzDetailPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
   const [selectAll, setSelectAll] = useState(false); // Select All state
-
-  const [gapSeconds, setGapSeconds] = useState(2); // Default 2 seconds
-  const [repetition, setRepetition] = useState(1); // Default 1 repetition
-  const [showText, setShowText] = useState(true); // Default show text
-
-  const [repetitionDraft, setRepetitionDraft] = useState(String(repetition));
-  const [gapDraft, setGapDraft] = useState(String(gapSeconds));
-
-  useEffect(() => {
-    setRepetitionDraft(String(repetition));
-  }, [repetition]);
-
-  useEffect(() => {
-    setGapDraft(String(gapSeconds));
-  }, [gapSeconds]);
 
   // Determine the ordered start and end of the selection for display/play
   const [ayahStartIndex, totalAyah] = useMemo(() => {
@@ -123,32 +99,6 @@ export default function JuzDetailPage() {
     return ayahNumber >= minAyah && ayahNumber <= maxAyah;
   };
 
-  // Repetition Handlers
-  const handleRepetitionCommit = () => {
-    const num = parseInt(repetitionDraft, 10);
-    if (isNaN(num) || num < 1 || num > 100) {
-      setRepetitionDraft(String(repetition));
-    } else {
-      setRepetition(num);
-    }
-  };
-  const handleRepetitionDraftChange = (e) => setRepetitionDraft(e.target.value);
-
-  // Gap Handlers
-  const handleGapCommit = () => {
-    const num = parseFloat(gapDraft);
-    if (isNaN(num) || num < 0 || num > 30) {
-      setGapDraft(String(gapSeconds));
-    } else {
-      setGapSeconds(num);
-    }
-  };
-  const handleGapDraftChange = (e) => setGapDraft(e.target.value);
-  const handleGapSliderChange = (_, newValue) => setGapSeconds(newValue);
-
-  // Show Text Handler
-  const handleShowTextChange = (e) => setShowText(e.target.checked);
-
   // Select All Handler
   const handleSelectAllChange = (event) => {
     const isChecked = event.target.checked;
@@ -156,25 +106,6 @@ export default function JuzDetailPage() {
     if (isChecked) {
       setSelectedAyahRange([null, null]);
     }
-  };
-
-  const navigate = useNavigate();
-
-  const handleStartListening = () => {
-    if (ayahNumberFirstGlobal === null || totalAyah === 0) return;
-
-    handleRepetitionCommit();
-    handleGapCommit();
-
-    const queryParams = new URLSearchParams({
-      start: ayahNumberFirstGlobal,
-      count: totalAyah,
-      gap: gapSeconds,
-      rep: repetition,
-      show: showText ? "true" : "false",
-    }).toString();
-
-    navigate(`/play?${queryParams}`);
   };
 
   const ayahRangeText =
@@ -272,26 +203,13 @@ export default function JuzDetailPage() {
         juzName={juz.name}
         juzNumber={juzNumber}
         totalJuzAyahs={juz.numberOfAyahs}
+        ayahNumberFirstGlobal={ayahNumberFirstGlobal}
         ayahRangeText={ayahRangeText}
         totalAyahsSelected={totalAyah}
-        // Repetition Props
-        repetitionDraft={repetitionDraft}
-        onRepetitionChange={handleRepetitionDraftChange}
-        onRepetitionCommit={handleRepetitionCommit}
-        // Gap Props
-        gapSeconds={gapSeconds}
-        gapDraft={gapDraft}
-        onGapDraftChange={handleGapDraftChange}
-        onGapCommit={handleGapCommit}
-        onGapSliderChange={handleGapSliderChange}
-        // Show Text Prop
-        showText={showText}
-        onShowTextChange={handleShowTextChange}
         // Select All Props
         selectAll={selectAll}
         onSelectAllChange={handleSelectAllChange}
         // Action Prop
-        onStartListening={handleStartListening}
         isDisabled={ayahNumberFirstGlobal === null || totalAyah === 0}
       />
     </Box>
