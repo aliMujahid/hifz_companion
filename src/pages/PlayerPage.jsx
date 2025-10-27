@@ -10,43 +10,82 @@ import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
 import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
-import { useState, useRef, useEffect, useCallback } from "react";
-import RepeatCountField from "./playerComponents/RepeatCountField";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"; // Added useMemo
+
 import DATA from "../../surahData.json";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 
-export default function Player({ ayahNumberFirst, totalAyah }) {
+// Component now accepts no props, as settings come from the URL
+export default function PlayerPage() {
   const theme = useTheme();
-  const audioSourceUrl = [];
 
-  let surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
+  // 1. STATE FOR URL-BASED PLAYBACK SETTINGS
+  const [ayahNumberFirst, setAyahNumberFirst] = useState(null);
+  const [totalAyah, setTotalAyah] = useState(0);
+  const [gapSeconds, setGapSeconds] = useState(0); // Corresponds to `pauseTime` logic
 
-  let index = 0;
-  if (ayahNumberFirst == 1) {
-    index++;
-  } // bismillah is already in the source list
+  // Repetition is now initialized from the URL
+  const [repeatCount, setRepeatCount] = useState(1);
+  // Show Text setting (though not used in player logic, useful for state tracking)
+  // const [showText, setShowText] = useState(true);
 
-  for (index; index < totalAyah; index++) {
-    if (
-      surahFirstAyahNumberList.includes(ayahNumberFirst + index) &&
-      ayahNumberFirst + index !== 1236
-    ) {
-      //omit bismillas beefore surah tawba
-      audioSourceUrl.push(
-        "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3"
+  // 2. EXTRACT SETTINGS FROM URL ONCE
+  useEffect(() => {
+    // Get the query string from the window's location
+    const params = new URLSearchParams(window.location.search);
+
+    // Parse and validate parameters
+    const start = parseInt(params.get("start"), 10) || 1;
+    const count = parseInt(params.get("count"), 10) || 1;
+    const rep = parseInt(params.get("rep"), 10) || 1;
+    const gap = parseFloat(params.get("gap")) || 0;
+    // const show = params.get('show') === 'true'; // If needed for the text display logic
+
+    setAyahNumberFirst(start);
+    setTotalAyah(count);
+    setRepeatCount(rep);
+    setGapSeconds(gap);
+    // setShowText(show);
+  }, []); // Run once on mount
+
+  // 3. MEMOIZE THE AUDIO SOURCE URL LIST GENERATION
+  const audioSourceUrl = useMemo(() => {
+    // Wait until URL parameters are parsed
+    if (ayahNumberFirst === null || totalAyah === 0) return [];
+
+    const urls = [];
+    const surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
+
+    for (let i = 0; i < totalAyah; i++) {
+      const currentGlobalAyah = ayahNumberFirst + i;
+
+      // Check if the current ayah is the start of a new surah (and not Surah Tawba's start)
+      // Global Ayah 1 (Al-Fatiha 1) is handled by the Bismillah in the first iteration
+      // Global Ayah 1236 is the start of Surah Tawbah (Ayah 1), which has no Bismillah
+      if (
+        surahFirstAyahNumberList.includes(currentGlobalAyah) &&
+        currentGlobalAyah !== 1
+      ) {
+        if (currentGlobalAyah !== 1236) {
+          // Omit Bismillah before Surah 9 (Tawbah)
+          urls.push(
+            "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3"
+          );
+        }
+      }
+
+      // Add the actual ayah track
+      urls.push(
+        `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${currentGlobalAyah}.mp3`
       );
     }
-    audioSourceUrl.push(
-      `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${
-        ayahNumberFirst + index
-      }.mp3`
-    );
-  }
 
+    return urls;
+  }, [ayahNumberFirst, totalAyah]); // Regenerate when start/count changes
+
+  // ... (Existing state variables remain, with repeatCount initialized above)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [pauseTime, setPauseTime] = useState(false);
-  const [repeatCount, setRepeatCount] = useState(1);
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
@@ -63,6 +102,8 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
   const toggleLoop = () => {
     setLoop(!loop);
   };
+
+  // Use audioSourceUrl.length as a dependency
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
@@ -72,61 +113,59 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
   }, [audioSourceUrl.length]);
 
   const handleAudioEnd = useCallback(() => {
+    // Don't run if the audio was paused (e.g., user clicked pause button)
     if (paused) return;
-    if (currentTrackIndex === 0) {
-      goToNextTrack();
-      return;
-    }
+
+    // Check if the source list is empty
+    if (audioSourceUrl.length === 0) return;
+
+    // The gap in seconds logic (previously implemented via `pauseTime`)
+    const delay = gapSeconds * 1000;
+    const shouldDelay = gapSeconds > 0;
 
     const nextRepeat = currentRepeat + 1;
     setCurrentRepeat(nextRepeat);
 
     if (nextRepeat < repeatCount) {
-      if (pauseTime) {
-        setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-            audioRef.current
-              .play()
-              .catch((e) =>
-                console.error("Error playing audio after loop:", e)
-              );
-          }
-        }, duration * 1000);
-      } else {
+      // Repeat current ayah/track
+      const startNextRepeat = () => {
         if (audioRef.current) {
           audioRef.current.currentTime = 0;
           audioRef.current
             .play()
-            .catch((e) => console.error("Error playing audio after loop:", e));
+            .catch((e) =>
+              console.error("Error playing audio after repeat:", e)
+            );
         }
+      };
+
+      if (shouldDelay) {
+        setTimeout(startNextRepeat, delay);
+      } else {
+        startNextRepeat();
       }
     } else {
+      // Finished repetition, move to next track
       const isLastTrack = currentTrackIndex === audioSourceUrl.length - 1;
 
-      if (!isLastTrack) {
-        setCurrentRepeat(0);
-        if (pauseTime) {
-          setTimeout(() => {
-            goToNextTrack();
-          }, duration * 1000);
-        } else {
+      const advanceTrack = () => {
+        setCurrentRepeat(0); // Reset repeat counter for the new ayah
+        if (!isLastTrack) {
           goToNextTrack();
-        }
-      } else {
-        if (loop) {
-          if (pauseTime) {
-            setTimeout(() => {
-              goToNextTrack();
-            }, duration * 1000);
-          } else {
-            goToNextTrack();
-          }
+        } else if (loop) {
+          // Loop the entire selection
+          goToNextTrack();
         } else {
+          // Done with the entire list
           setPaused(true);
           setIsDone(true);
         }
-        setCurrentRepeat(0);
+      };
+
+      if (shouldDelay) {
+        setTimeout(advanceTrack, delay);
+      } else {
+        advanceTrack();
       }
     }
   }, [
@@ -137,9 +176,10 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
     audioSourceUrl.length,
     goToNextTrack,
     loop,
-    pauseTime,
+    gapSeconds, // Use gapSeconds for delay
   ]);
 
+  // Handle player reset when start Ayah changes (only runs once on initial load due to `useEffect` above)
   useEffect(() => {
     setCurrentTrackIndex(0);
     setCurrentRepeat(0);
@@ -150,10 +190,13 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-  }, [ayahNumberFirst]); // Trigger when a new Surah is selected
+  }, [ayahNumberFirst]);
 
   const controllPlayPause = () => {
     const audio = audioRef.current;
+
+    // Prevent play if the audio list is empty
+    if (audioSourceUrl.length === 0) return;
 
     if (paused) {
       if (isDone) {
@@ -212,6 +255,10 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
   useEffect(() => {
     const audio = audioRef.current;
 
+    if (!audio) {
+      return;
+    }
+
     const setAudioData = () => {
       if (audio.duration && isFinite(audio.duration)) {
         setDuration(audio.duration);
@@ -231,7 +278,8 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       setCurrentTime(0);
-      if (!paused) {
+      // Only attempt to play if audioSourceUrl is populated and not paused
+      if (!paused && audioSourceUrl.length > 0) {
         audioRef.current
           .play()
           .catch((e) => console.error("Error playing after track change:", e));
@@ -242,12 +290,34 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
       audio.removeEventListener("loadedmetadata", setAudioData);
       audio.removeEventListener("timeupdate", updateTime);
     };
-  }, [currentTrackIndex]);
+  }, [currentTrackIndex, paused, audioSourceUrl.length]); // Added dependencies
+
+  // Display a loading message until parameters are parsed and the audio list is generated
+  if (ayahNumberFirst === null) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6">Loading playback settings...</Typography>
+      </Box>
+    );
+  }
+
+  // If the ayah list is empty (e.g., invalid start/count)
+  if (audioSourceUrl.length === 0) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6">No Ayahs selected for playback.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
       sx={{
         width: "100%",
+        position: "fixed", // Keep the player visible
+        bottom: 0,
+        left: 0,
+        zIndex: 1300,
       }}
     >
       <Card
@@ -306,18 +376,17 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
                     ml: 5,
                   }}
                 >
-                  <Button
-                    variant={pauseTime ? "contained" : "outlined"}
-                    onClick={() => setPauseTime(!pauseTime)}
-                    size="small"
-                  >
-                    Pause Between Ayah
-                  </Button>
+                  {/* Removed the Button for Pause Between Ayah, as it's now driven by gapSeconds from URL */}
+                  {/* Displaying gapSeconds state value */}
+                  <Typography variant="body2" sx={{ alignSelf: "center" }}>
+                    **Gap:** {gapSeconds}s
+                  </Typography>
                 </Box>
               </Box>
             </>
           )}
           {/* Progress Bar and Time */}
+          {/* ... (rest of the component structure remains the same) */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Typography variant="caption" sx={{ minWidth: 35 }}>
               {formatTime(currentTime)}
@@ -384,13 +453,18 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
               </span>
             </Typography>
             <Box>
-              <IconButton aria-label="previous" onClick={handlePrevClick}>
+              <IconButton
+                aria-label="previous"
+                onClick={handlePrevClick}
+                disabled={audioSourceUrl.length === 0}
+              >
                 <SkipPreviousIcon />
               </IconButton>
               <IconButton
                 aria-label="play/pause"
                 onClick={controllPlayPause}
                 sx={{ mx: 1 }}
+                disabled={audioSourceUrl.length === 0}
               >
                 {paused ? (
                   <PlayArrowIcon
@@ -410,7 +484,11 @@ export default function Player({ ayahNumberFirst, totalAyah }) {
                   />
                 )}
               </IconButton>
-              <IconButton aria-label="next" onClick={handleNextClick}>
+              <IconButton
+                aria-label="next"
+                onClick={handleNextClick}
+                disabled={audioSourceUrl.length === 0}
+              >
                 <SkipNextIcon />
               </IconButton>
             </Box>

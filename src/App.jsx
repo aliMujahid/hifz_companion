@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography";
 import Toolbar from "@mui/material/Toolbar";
 import SurahDetailPage from "./pages/SurahDetailPage";
 import JuzDetailPage from "./pages/JuzDetailPage";
+import PlayerPage from "./pages/PlayerPage";
 
 const BASE_PATH = "/hifz_companion";
 
@@ -49,9 +50,9 @@ function AppContent() {
     // Check if the path starts with /surah/ to keep the 'Suras' tab active
     if (location.pathname.startsWith("/surah")) {
       setValue(0);
-    } else if(location.pathname.startsWith("/juz")){
+    } else if (location.pathname.startsWith("/juz")) {
       setValue(1);
-    }else {
+    } else {
       switch (location.pathname) {
         case "/juz":
           setValue(1);
@@ -123,6 +124,7 @@ function AppContent() {
 
           {/* 4. Juz (Para) Detail Page with dynamic ID */}
           <Route path="/juz/:juzNumber" element={<JuzDetailPage />} />
+          <Route path="/play" element={<PlayerPage />} />
         </Routes>
       </Box>
     </>
