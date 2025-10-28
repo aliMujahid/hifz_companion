@@ -35,7 +35,7 @@ export default function PlaybackSettingsDrawer({
   isDisabled,
 }) {
   const theme = useTheme();
-  const [gapSeconds, setGapSeconds] = useState(2); // Default 2 seconds
+  const [gapSeconds, setGapSeconds] = useState(0);
   const [repetition, setRepetition] = useState(1); // Default 1 repetition
   const [showText, setShowText] = useState(false); // Default show text
 
