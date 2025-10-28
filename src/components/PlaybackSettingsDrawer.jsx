@@ -1,5 +1,3 @@
-// src/components/PlaybackSettingsDrawer.jsx
-
 import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -36,8 +34,8 @@ export default function PlaybackSettingsDrawer({
 }) {
   const theme = useTheme();
   const [gapSeconds, setGapSeconds] = useState(0);
-  const [repetition, setRepetition] = useState(1); // Default 1 repetition
-  const [showText, setShowText] = useState(false); // Default show text
+  const [repetition, setRepetition] = useState(1);
+  const [showText, setShowText] = useState(false);
 
   const [repetitionDraft, setRepetitionDraft] = useState(String(repetition));
   const [gapDraft, setGapDraft] = useState(String(gapSeconds));
@@ -161,7 +159,7 @@ export default function PlaybackSettingsDrawer({
             control={
               <Checkbox checked={selectAll} onChange={onSelectAllChange} />
             }
-            label="Select All Ayahs in Juz"
+            label={`Select All Ayahs in ${isSurah ? "Surah" : "Juz"}`}
             sx={{ mb: 1 }}
           />
 

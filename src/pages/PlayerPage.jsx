@@ -16,13 +16,12 @@ import DATA from "../../surahData.json";
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import QURAN from "../../indopak-nastaleeq-vers.json";
-// Import the new icon for the Show Text button
 import NotesIcon from "@mui/icons-material/Notes";
 import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 
 // Bismillah text object (used before all Surahs except Surah 1 and Surah 9)
 const BISMILLAH_TEXT = {
-  text: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", // Arabic text for Bismillah
+  text: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
   isBismillah: true,
 };
 
@@ -53,9 +52,8 @@ export default function PlayerPage() {
     setGapSeconds(gap);
     setShowText(show);
     setGapDraft(String(gap));
-  }, []); // Run once on mount
+  }, []);
 
-  // 1. MODIFIED AYAH TEXTS GENERATION WITH BISMILLAH INSERTION
   const ayahTextsWithBismillah = useMemo(() => {
     if (ayahNumberFirst === null || totalAyah === 0) return [];
 
@@ -104,7 +102,6 @@ export default function PlayerPage() {
     }
   };
 
-  // 2. MEMOIZE THE AUDIO SOURCE URL LIST GENERATION
   const audioSourceUrl = useMemo(() => {
     // Wait until URL parameters are parsed
     if (ayahNumberFirst === null || totalAyah === 0) return [];
@@ -135,9 +132,7 @@ export default function PlayerPage() {
     }
 
     return urls;
-  }, [ayahNumberFirst, totalAyah]); // Regenerate when start/count changes
-
-  // ... (Existing state variables remain, with repeatCount initialized above)
+  }, [ayahNumberFirst, totalAyah]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
@@ -156,13 +151,10 @@ export default function PlayerPage() {
     setLoop(!loop);
   };
 
-  // --- NEW FUNCTION: Toggle Show Text ---
   const toggleShowText = () => {
     setShowText(!showText);
   };
-  // -------------------------------------
 
-  // Use audioSourceUrl.length as a dependency
   const goToNextTrack = useCallback(() => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % audioSourceUrl.length;
@@ -238,7 +230,6 @@ export default function PlayerPage() {
     gapSeconds, // Use gapSeconds for delay
   ]);
 
-  // Handle player reset when start Ayah changes (only runs once on initial load due to `useEffect` above)
   useEffect(() => {
     setCurrentTrackIndex(0);
     setCurrentRepeat(0);
@@ -337,7 +328,6 @@ export default function PlayerPage() {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
       setCurrentTime(0);
-      // Only attempt to play if audioSourceUrl is populated and not paused
       if (!paused && audioSourceUrl.length > 0) {
         audioRef.current
           .play()
@@ -349,16 +339,14 @@ export default function PlayerPage() {
       audio.removeEventListener("loadedmetadata", setAudioData);
       audio.removeEventListener("timeupdate", updateTime);
     };
-  }, [currentTrackIndex, paused, audioSourceUrl.length]); // Added dependencies
+  }, [currentTrackIndex, audioSourceUrl.length]);
 
-  // 3. LOGIC TO DETERMINE CURRENTLY PLAYING TEXT INDEX
   const currentAyahTextIndex = useMemo(() => {
     if (audioSourceUrl.length === 0) return -1;
 
     let textIndex = -1;
     let audioTrackCounter = 0;
 
-    // Iterate through the visible text items (Ayahs and Bismillahs)
     for (let i = 0; i < ayahTextsWithBismillah.length; i++) {
       const item = ayahTextsWithBismillah[i];
 
@@ -405,9 +393,9 @@ export default function PlayerPage() {
       {showText && (
         <Box
           sx={{
-            pb: isExpanded ? 35 : 20, // Ensure player bar doesn't overlap
-            pt: 2, // Little padding at the top
-            px: { xs: 2, sm: 4, md: 8 }, // Horizontal padding for better readability
+            pb: isExpanded ? 35 : 20,
+            pt: 2,
+            px: { xs: 2, sm: 4, md: 8 },
             width: { xs: "100%", sm: "80%", md: "75%", lg: "60%" },
             mx: "auto",
           }}
@@ -415,7 +403,6 @@ export default function PlayerPage() {
           {ayahTextsWithBismillah.map((item, index) => {
             const isCurrentItem = index === currentAyahTextIndex;
             const isBismillah = item.isBismillah;
-            // Assuming `verse_key` only exists on Ayah objects, not Bismillah
             const isAyah = item.verse_key !== undefined;
 
             return (
@@ -425,24 +412,23 @@ export default function PlayerPage() {
                   xs: isBismillah ? "1.5rem" : "1.8rem",
                   sm: isBismillah ? "1.8rem" : "2rem",
                   md: isBismillah ? "2rem" : "2.5rem",
-                }} // Responsive font size
+                }}
                 fontFamily={"alQalam"}
                 dir="rtl"
                 sx={{
-                  mt: isBismillah ? 5 : 0, // Extra margin before Bismillah
-                  mb: isBismillah ? 2 : 3, // Space after item
-                  lineHeight: 2.2, // Increased line height for legibility
-                  transition: "background-color 0.3s, color 0.3s", // Smooth transition for highlighting
+                  mt: isBismillah ? 5 : 0,
+                  mb: isBismillah ? 2 : 3,
+                  lineHeight: 2.2,
+                  transition: "background-color 0.3s, color 0.3s",
                   p: 1,
                   borderRadius: 1,
-                  textAlign: isBismillah ? "center" : "right", // Center Bismillah
-                  // Highlighting logic: Use primary color only for the current item
+                  textAlign: isBismillah ? "center" : "right",
                   backgroundColor: isCurrentItem
-                    ? theme.palette.primary.light + "1A" // Soft highlight
+                    ? theme.palette.primary.light + "1A"
                     : "transparent",
                   color: isCurrentItem
                     ? theme.palette.text.primary
-                    : theme.palette.text.secondary, // Normal Ayah text
+                    : theme.palette.text.secondary,
                   fontWeight: isBismillah ? "bold" : "normal",
                 }}
               >
@@ -482,7 +468,7 @@ export default function PlayerPage() {
             backgroundColor: theme.palette.background.paper,
             borderRadius: showText ? 0 : 2,
             pt: 2,
-            pb: { xs: 1, sm: 2 }, // Add padding to the bottom of the card
+            pb: { xs: 1, sm: 2 },
             ...(!showText && {
               boxShadow: 8,
               "& .MuiTypography-root": {
@@ -495,7 +481,7 @@ export default function PlayerPage() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              px: { xs: 0, sm: 2, md: 5 }, // Less horizontal padding on extra small screens
+              px: { xs: 0, sm: 2, md: 5 },
               py: 0,
             }}
           >
@@ -504,13 +490,13 @@ export default function PlayerPage() {
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: { xs: "column", sm: "row" }, // Stack on mobile, side-by-side on desktop
+                  flexDirection: { xs: "column", sm: "row" },
                   justifyContent: { xs: "flex-start", sm: "space-between" },
                   alignItems: { xs: "flex-start", sm: "center" },
                   gap: { xs: 2, sm: 4 },
                   mb: 2,
-                  p: 1, // Add padding to the expanded section
-                  backgroundColor: theme.palette.action.hover, // Slight background for separation
+                  p: 1,
+                  backgroundColor: theme.palette.action.hover,
                   borderRadius: 1,
                 }}
               >
@@ -526,24 +512,18 @@ export default function PlayerPage() {
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                     Repeats:
                   </Typography>
-                  {[1, 2, 3, 4, 5, 7].map(
-                    (
-                      count // Use fewer buttons
-                    ) => (
-                      <Button
-                        key={count}
-                        variant={
-                          repeatCount === count ? "contained" : "outlined"
-                        }
-                        value={count}
-                        onClick={handleClick}
-                        size="small"
-                        sx={{ minWidth: "35px", p: "4px 8px" }} // Compact buttons
-                      >
-                        {count}
-                      </Button>
-                    )
-                  )}
+                  {[1, 2, 3, 4, 5, 7].map((count) => (
+                    <Button
+                      key={count}
+                      variant={repeatCount === count ? "contained" : "outlined"}
+                      value={count}
+                      onClick={handleClick}
+                      size="small"
+                      sx={{ minWidth: "35px", p: "4px 8px" }}
+                    >
+                      {count}
+                    </Button>
+                  ))}
                 </Box>
                 {/* Gap Control Group */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -551,7 +531,7 @@ export default function PlayerPage() {
                     Gap (s):
                   </Typography>
                   <TextField
-                    label="" // Remove label for cleaner look
+                    label=""
                     placeholder="Seconds"
                     type="number"
                     size="small"
@@ -589,7 +569,6 @@ export default function PlayerPage() {
                 min={0}
                 max={duration || 0}
                 value={currentTime}
-                // ... (Slider props remain the same)
                 onChangeCommitted={(event, newValue) => {
                   if (audioRef.current) {
                     audioRef.current.currentTime = newValue;
@@ -600,14 +579,14 @@ export default function PlayerPage() {
                 color="primary"
                 sx={{
                   flexGrow: 1,
-                  height: 6, // Slightly thicker slider
-                  py: 1, // Add vertical padding to make it easier to tap
+                  height: 6,
+                  py: 1,
                   "& .MuiSlider-thumb": {
-                    width: 14, // Slightly larger thumb
+                    width: 14,
                     height: 14,
                     transition: "0.2s",
                     "&:hover, &.Mui-focusVisible": {
-                      boxShadow: `0 0 0 8px ${theme.palette.primary.main}1A`, // Use primary color in shadow
+                      boxShadow: `0 0 0 8px ${theme.palette.primary.main}1A`,
                     },
                   },
                 }}
@@ -624,8 +603,8 @@ export default function PlayerPage() {
                   isExpanded ? "Collapse Controls" : "Expand Controls"
                 }
                 onClick={toggleExpanded}
-                size="medium" // Use medium size for better tap target
-                color="default" // Use default color for the arrow
+                size="medium"
+                color="default"
               >
                 {isExpanded ? (
                   <KeyboardDoubleArrowDownIcon fontSize="small" />
@@ -647,7 +626,7 @@ export default function PlayerPage() {
               }}
             >
               <Typography
-                variant="subtitle2" // Use subtitle2 for a bolder look
+                variant="subtitle2"
                 color="text.secondary"
                 sx={{ order: !showText ? 2 : 0 }}
               >
@@ -679,20 +658,20 @@ export default function PlayerPage() {
                   aria-label="previous"
                   onClick={handlePrevClick}
                   disabled={audioSourceUrl.length === 0}
-                  size="large" // Larger icon buttons for better interaction
+                  size="large"
                 >
                   <SkipPreviousIcon fontSize="large" />
                 </IconButton>
                 <IconButton
                   aria-label="play/pause"
                   onClick={controllPlayPause}
-                  sx={{ mx: 2, p: 0.5 }} // More horizontal margin, slightly more padding
+                  sx={{ mx: 2, p: 0.5 }}
                   disabled={audioSourceUrl.length === 0}
                 >
                   {paused ? (
                     <PlayArrowIcon
                       sx={{
-                        height: 48, // Larger play button
+                        height: 48,
                         width: 48,
                         color: theme.palette.primary.main,
                       }}
@@ -737,7 +716,6 @@ export default function PlayerPage() {
                 >
                   {showText ? <NotesIcon /> : <NotesOutlinedIcon />}
                 </IconButton>
-                {/* ---------------------------------- */}
 
                 <IconButton
                   onClick={toggleLoop}

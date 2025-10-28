@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import data from "../../juzData.json";
 import surahInJuz from "../../surahInJuz.json";
+import surahData from "../../surahData.json";
 import { Divider } from "@mui/material";
 
 export default function JuzDetailPage() {
@@ -130,12 +131,12 @@ export default function JuzDetailPage() {
           <Container maxWidth="lg" key={surah.surah} sx={{ pt: 5 }}>
             <Typography
               variant="h4"
-              fontFamily={"alQalam"}
+              //fontFamily={"alQalam"}
               component="h1"
               gutterBottom
-              align="center"
+              align="left"
             >
-              {surah.name}
+              {surahData[surah.surah - 1].englishName}
             </Typography>
             <Grid
               container
