@@ -10,8 +10,8 @@ import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import DATA from "../../surahData.json";
-import SettingsIcon from "@mui/icons-material/Settings";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import KeyboardDoubleArrowDown from "@mui/icons-material/KeyboardDoubleArrowDown";
+import KeyboardDoubleArrowUp from "@mui/icons-material/KeyboardDoubleArrowUp";
 import Tooltip from "@mui/material/Tooltip";
 import NotesIcon from "@mui/icons-material/Notes";
 import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
@@ -30,8 +30,8 @@ export default function Player({
   const [currentRepeat, setCurrentRepeat] = useState(0);
   const [paused, setPaused] = useState(true);
   const [isDone, setIsDone] = useState(false);
-  const [loopCount, setLoopCount] = useState(0);
-  const [loop, setLoop] = useState(false);
+  const [loopCount, setLoopCount] = useState(1);
+  const [currentSelectionLoop, setCurrentSelectionLoop] = useState(0);
   const audioRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
@@ -49,13 +49,18 @@ export default function Player({
     let lastAyahSurah =
       DATA[
         parseInt(
-          QURAN[ayahNumberFirst + totalAyah].verse_key.split(":")[0],
+          QURAN[ayahNumberFirst + totalAyah - 1].verse_key.split(":")[0],
           10
         ) - 1
       ].englishName;
     let lastAyahNumber = parseInt(
-      QURAN[ayahNumberFirst + totalAyah].verse_key.split(":")[1]
+      QURAN[ayahNumberFirst + totalAyah - 1].verse_key.split(":")[1]
     );
+    if (firstAyahSurah === lastAyahSurah)
+      return `${firstAyahSurah + ":  "}${
+        firstAyahNumber + " - " + lastAyahNumber
+      }`;
+
     return `${firstAyahSurah + ":" + firstAyahNumber} - ${
       lastAyahSurah + ":" + lastAyahNumber
     }`;
@@ -148,15 +153,20 @@ export default function Player({
 
       const advanceTrack = () => {
         setCurrentRepeat(0); // Reset repeat counter for the new ayah
+
         if (!isLastTrack) {
           goToNextTrack();
-        } else if (loop) {
-          // Loop the entire selection
-          goToNextTrack();
         } else {
-          // Done with the entire list
-          setPaused(true);
-          setIsDone(true);
+          const nextSelectionLoop = currentSelectionLoop + 1;
+
+          if (nextSelectionLoop < loopCount) {
+            setCurrentSelectionLoop(nextSelectionLoop);
+            goToNextTrack();
+          } else {
+            setPaused(true);
+            setIsDone(true);
+            setCurrentSelectionLoop(0);
+          }
         }
       };
 
@@ -173,13 +183,14 @@ export default function Player({
     currentTrackIndex,
     audioSourceUrl.length,
     goToNextTrack,
-    loop,
-    gapSeconds, // Use gapSeconds for delay
+    loopCount,
+    currentSelectionLoop,
+    gapSeconds,
   ]);
 
   useEffect(() => {
     setCurrentTrackIndex(0);
-
+    setCurrentSelectionLoop(0);
     setCurrentRepeat(0);
     setPaused(true);
     setIsDone(false);
@@ -199,7 +210,7 @@ export default function Player({
     if (paused) {
       if (isDone) {
         setCurrentTrackIndex(0);
-
+        setCurrentSelectionLoop(0);
         setIsDone(false);
       }
       audio.play();
@@ -321,6 +332,23 @@ export default function Player({
         }),
       }}
     >
+      {isExpanded && showText && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ width: "10px" }}></Box>
+          <IconButton
+            sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+            onClick={toggleExpanded}
+          >
+            <KeyboardDoubleArrowDown />
+          </IconButton>
+        </Box>
+      )}
       {/* 1. Total Ayahs */}
       <Box
         sx={{
@@ -428,7 +456,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          Show Ayah Text:
+          {showText ? "Hide" : "Show"} Ayah Text:
         </Typography>
         <Tooltip title={showText ? "Text is Visible" : "Text is Hidden"}>
           <IconButton
@@ -509,6 +537,15 @@ export default function Player({
         <Typography variant="caption" sx={{ minWidth: 35, textAlign: "right" }}>
           {formatTime(duration)}
         </Typography>
+
+        {!isExpanded && showText && (
+          <IconButton
+            sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+            onClick={toggleExpanded}
+          >
+            <KeyboardDoubleArrowUp />
+          </IconButton>
+        )}
       </Box>
 
       {/* Control Buttons and Repeat Info */}
@@ -517,8 +554,12 @@ export default function Player({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          width: !showText ? "inherit" : { xs: "100%", sm: "90%", md: "80%" },
         }}
       >
+        <Typography>
+          Repeat: {currentRepeat}/{repeatCount}
+        </Typography>
         {/* Navigation Buttons */}
         <Box>
           <Tooltip title="Previous Ayah">
@@ -534,7 +575,7 @@ export default function Player({
           <IconButton
             aria-label="play/pause"
             onClick={controllPlayPause}
-            sx={{ mx: 2, p: 0.5 }}
+            sx={{ mx: showText ? 0 : 2, p: 0.5 }}
             disabled={audioSourceUrl.length === 0}
           >
             {paused ? (
@@ -566,97 +607,72 @@ export default function Player({
             </IconButton>
           </Tooltip>
         </Box>
-
-        {/* Options Toggle Button (Replaces Loop/Notes buttons here) */}
-        <Box>
-          <Tooltip
-            title={
-              isExpanded ? "Hide Playback Options" : "Show Playback Options"
-            }
-          >
-            <IconButton
-              onClick={toggleExpanded}
-              aria-label="Toggle playback options"
-              color="default"
-              sx={{
-                p: "8px",
-                transition: "all 0.2s",
-                // Only show this button when showText is TRUE (fixed to bottom)
-                display: showText ? "inline-flex" : "none",
-              }}
-            >
-              {isExpanded ? <SettingsIcon /> : <SettingsOutlinedIcon />}
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <Typography>
+          Loop: {currentSelectionLoop}/{loopCount}
+        </Typography>
       </Box>
     </Box>
   );
 
-  // --- Main Render ---
-
-  // Centered Card Layout (showText === false)
-  if (!showText) {
-    return (
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          position: "static",
-          backgroundColor: theme.palette.background.default,
-        }}
-      >
-        <Card
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: { xs: "95%", sm: 500 },
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: 2,
-            boxShadow: 8,
-          }}
-        >
-          {PlaybackOptions({ isExpanded: true, showText: false })}
-          {PlayerControls}
-          <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
-        </Card>
-      </Box>
-    );
-  }
-
-  // Bottom-Stuck Bar Layout (showText === true)
   return (
     <>
-      {PlaybackOptions({ isExpanded: isExpanded, showText: true })}
-      <Box
-        sx={{
-          width: "100%",
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          zIndex: 1300,
-          borderTop: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Card
+      {" "}
+      {!showText && (
+        <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
             width: "100%",
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: 0,
-            position: "relative", // Needed for absolute positioning of dropdown
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            position: "static",
+            backgroundColor: theme.palette.background.default,
           }}
         >
-          {/* Playback Options Dropdown */}
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: { xs: "95%", sm: 500 },
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 2,
+              boxShadow: 8,
+            }}
+          >
+            {PlaybackOptions({ isExpanded: true, showText: false })}
+            {PlayerControls}
+          </Card>
+        </Box>
+      )}
+      {showText && PlaybackOptions({ isExpanded: isExpanded, showText: true })}
+      {showText && (
+        <Box
+          sx={{
+            width: "100%",
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            zIndex: 1300,
+            borderTop: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 0,
+              position: "relative", // Needed for absolute positioning of dropdown
+            }}
+          >
+            {/* Playback Options Dropdown */}
 
-          {PlayerControls}
-          <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
-        </Card>
-      </Box>
+            {PlayerControls}
+          </Card>
+        </Box>
+      )}
+      <audio ref={audioRef} src={audioSourceUrl[currentTrackIndex]}></audio>
     </>
   );
 }
