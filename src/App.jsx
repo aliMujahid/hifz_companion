@@ -80,12 +80,19 @@ function AppContent() {
         <Toolbar sx={{ flexDirection: "column", py: 1 }}>
           <Typography
             variant="h5"
-            component="div"
+            component={Link}
+            to="/"
             align="center"
             sx={{
               width: "100%",
               fontWeight: "bold",
               mb: 2,
+              color: "inherit",
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "underline",
+                opacity: 0.8,
+              },
             }}
           >
             Baitul Hikmat
