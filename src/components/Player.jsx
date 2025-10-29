@@ -16,6 +16,7 @@ import Tooltip from "@mui/material/Tooltip";
 import NotesIcon from "@mui/icons-material/Notes";
 import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 import CustomTextField from "./playerComponents/CustomTextField";
+import QURAN from "../../indopak-nastaleeq-vers.json";
 
 export default function Player({
   ayahNumberFirst,
@@ -37,6 +38,28 @@ export default function Player({
   const [duration, setDuration] = useState(0);
   const [gapSeconds, setGapSeconds] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
+
+  const selectedAyahText = useMemo(() => {
+    let firstAyahSurah =
+      DATA[parseInt(QURAN[ayahNumberFirst].verse_key.split(":")[0], 10) - 1]
+        .englishName;
+    let firstAyahNumber = parseInt(
+      QURAN[ayahNumberFirst].verse_key.split(":")[1]
+    );
+    let lastAyahSurah =
+      DATA[
+        parseInt(
+          QURAN[ayahNumberFirst + totalAyah].verse_key.split(":")[0],
+          10
+        ) - 1
+      ].englishName;
+    let lastAyahNumber = parseInt(
+      QURAN[ayahNumberFirst + totalAyah].verse_key.split(":")[1]
+    );
+    return `${firstAyahSurah + ":" + firstAyahNumber} - ${
+      lastAyahSurah + ":" + lastAyahNumber
+    }`;
+  }, [ayahNumberFirst, totalAyah]);
 
   useEffect(() => {
     setPlayerPageCurrentTrackIndex(currentTrackIndex);
@@ -313,7 +336,7 @@ export default function Player({
           variant="body1"
           sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
         >
-          {totalAyah}
+          {selectedAyahText}
         </Typography>
       </Box>
 
