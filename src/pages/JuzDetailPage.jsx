@@ -140,10 +140,9 @@ export default function JuzDetailPage() {
     <Box sx={{ p: 2 }}>
       <Box
         sx={{
-          // Apply blur and transition when button is visible
           filter: playButtonVisible ? "blur(4px)" : "none",
           transition: "filter 0.2s ease-in-out",
-          // Prevent clicking on the blurred content
+
           pointerEvents: playButtonVisible ? "none" : "auto",
         }}
       >
@@ -154,12 +153,12 @@ export default function JuzDetailPage() {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row", // Arrange items in a row
-            alignItems: "center", // Vertically center them
-            justifyContent: "center", // Horizontally center the group
-            flexWrap: "wrap", // Allow wrapping on small screens
-            gap: 2, // Add space between the items
-            my: 2, // Add some vertical margin
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: 2,
+            my: 2,
           }}
         >
           <Typography
@@ -168,7 +167,7 @@ export default function JuzDetailPage() {
               fontSize: "2rem",
             }}
           >
-            Selec Ayaat to Play
+            Select Ayaat to Play
           </Typography>
 
           <FormControlLabel
@@ -180,7 +179,7 @@ export default function JuzDetailPage() {
                 color="primary"
               />
             }
-            label="Select All"
+            label="Select All Ayaat"
             sx={{
               // Style the label text
               "& .MuiTypography-root": {

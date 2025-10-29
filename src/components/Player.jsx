@@ -358,7 +358,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          Selected Ayahs:
+          Selected Ayaat:
         </Typography>
         <Typography
           variant="body1"
@@ -404,7 +404,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          Set a Gap Between Ayahs:
+          Set a Gap Between Ayaat:
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <CustomTextField
@@ -430,7 +430,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          Loop Through Ayahs:
+          Loop Through All Ayaat:
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <CustomTextField
@@ -456,7 +456,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          {showText ? "Hide" : "Show"} Ayah Text:
+          {showText ? "Hide" : "Show"} Ayaat Text:
         </Typography>
         <Tooltip title={showText ? "Text is Visible" : "Text is Hidden"}>
           <IconButton

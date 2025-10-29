@@ -179,12 +179,12 @@ export default function SurahDetailPage() {
           <Box
             sx={{
               display: "flex",
-              flexDirection: "row", // Arrange items in a row
-              alignItems: "center", // Vertically center them
-              justifyContent: "center", // Horizontally center the group
-              flexWrap: "wrap", // Allow wrapping on small screens
-              gap: 2, // Add space between the items
-              my: 2, // Add some vertical margin
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: 2,
+              my: 2,
             }}
           >
             <Typography
@@ -193,7 +193,7 @@ export default function SurahDetailPage() {
                 fontSize: "2rem",
               }}
             >
-              Selec Ayaat to Play
+              Select Ayaat to Play
             </Typography>
 
             <FormControlLabel
@@ -205,7 +205,7 @@ export default function SurahDetailPage() {
                   color="primary"
                 />
               }
-              label="Select All"
+              label="Select All Ayaat"
               sx={{
                 // Style the label text
                 "& .MuiTypography-root": {
