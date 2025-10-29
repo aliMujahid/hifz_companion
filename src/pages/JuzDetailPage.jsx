@@ -1,19 +1,18 @@
-import Box from "@mui/material/Box";
+import { Box, Checkbox, FormControlLabel, Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
 import AyahButton from "../components/AyahButton";
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-import PlaybackSettingsDrawer from "../components/PlaybackSettingsDrawer";
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import data from "../../juzData.json";
 import surahInJuz from "../../surahInJuz.json";
 import surahData from "../../surahData.json";
 import { Divider } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function JuzDetailPage() {
+  const navigate = useNavigate();
   const { juzNumber: juzNumberParam } = useParams();
   const juzNumber = parseInt(juzNumberParam);
 
@@ -32,9 +31,9 @@ export default function JuzDetailPage() {
     };
   }, [juzNumber]);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedAyahRange, setSelectedAyahRange] = useState([null, null]);
-  const [selectAll, setSelectAll] = useState(false); // Select All state
+  const [selectAll, setSelectAll] = useState(false);
+  const [playButtonVisible, setPlayButtonVisible] = useState(false);
 
   // Determine the ordered start and end of the selection for display/play
   const [ayahStartIndex, totalAyah] = useMemo(() => {
@@ -61,7 +60,7 @@ export default function JuzDetailPage() {
   useEffect(() => {
     const [start, end] = selectedAyahRange;
     if (selectAll || (start !== null && end !== null && totalAyah > 0)) {
-      setIsDrawerOpen(true);
+      setPlayButtonVisible(true);
     }
   }, [selectedAyahRange, totalAyah, selectAll]);
 
@@ -109,10 +108,27 @@ export default function JuzDetailPage() {
     }
   };
 
-  const ayahRangeText =
-    ayahStartIndex !== null && totalAyah > 0
-      ? `${ayahStartIndex} - ${ayahStartIndex + totalAyah - 1}`
-      : "None Selected";
+  const handlePlayButtonClick = () => {
+    if (ayahNumberFirstGlobal === null || totalAyah === 0) return;
+
+    const queryParams = new URLSearchParams({
+      start: ayahNumberFirstGlobal,
+      count: totalAyah,
+    }).toString();
+
+    navigate(`/play?${queryParams}`);
+  };
+
+  const handleClosePlayButton = () => {
+    setPlayButtonVisible(false);
+    setSelectedAyahRange([null, null]);
+    setSelectAll(false);
+  };
+
+  const handlePlayButtonClickWithStop = (e) => {
+    e.stopPropagation();
+    handlePlayButtonClick();
+  };
 
   const currentJuzSurahs = surahInJuz[juzNumber - 1]
     ? surahInJuz[juzNumber - 1].surahs
@@ -122,97 +138,131 @@ export default function JuzDetailPage() {
 
   return (
     <Box sx={{ p: 2 }}>
-      {/* ... (Juz content remains the same) */}
-      <Typography variant="h4" component="h1" gutterBottom align="center">
-        Juz (Para) {juz.number}
-      </Typography>
-      {currentJuzSurahs.map((surah) => {
-        return (
-          <Container maxWidth="lg" key={surah.surah} sx={{ pt: 5 }}>
-            <Typography
-              variant="h4"
-              //fontFamily={"alQalam"}
-              component="h1"
-              gutterBottom
-              align="left"
-            >
-              {surahData[surah.surah - 1].englishName}
-            </Typography>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="left"
-              sx={{ width: "100%" }}
-            >
-              {surah.ayahs.map((ayah) => {
-                const currentJuzLocalIndex = juzLocalAyahIndex;
+      <Box
+        sx={{
+          // Apply blur and transition when button is visible
+          filter: playButtonVisible ? "blur(4px)" : "none",
+          transition: "filter 0.2s ease-in-out",
+          // Prevent clicking on the blurred content
+          pointerEvents: playButtonVisible ? "none" : "auto",
+        }}
+      >
+        {/* ... (Juz content remains the same) */}
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Juz (Para) {juz.number}
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row", // Arrange items in a row
+            alignItems: "center", // Vertically center them
+            justifyContent: "center", // Horizontally center the group
+            flexWrap: "wrap", // Allow wrapping on small screens
+            gap: 2, // Add space between the items
+            my: 2, // Add some vertical margin
+          }}
+        >
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "2rem",
+            }}
+          >
+            Selec Ayaat to Play
+          </Typography>
 
-                juzLocalAyahIndex++;
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={selectAll}
+                onChange={handleSelectAllChange}
+                name="selectAll"
+                color="primary"
+              />
+            }
+            label="Select All"
+            sx={{
+              // Style the label text
+              "& .MuiTypography-root": {
+                fontSize: "1.1rem",
+                fontWeight: "500",
+              },
+            }}
+          />
+        </Box>
+        {currentJuzSurahs.map((surah) => {
+          return (
+            <Container maxWidth="lg" key={surah.surah} sx={{ pt: 5 }}>
+              <Typography
+                variant="h4"
+                //fontFamily={"alQalam"}
+                component="h1"
+                gutterBottom
+                align="left"
+              >
+                {surahData[surah.surah - 1].englishName}
+              </Typography>
+              <Grid
+                container
+                spacing={2}
+                justifyContent="left"
+                sx={{ width: "100%" }}
+              >
+                {surah.ayahs.map((ayah) => {
+                  const currentJuzLocalIndex = juzLocalAyahIndex;
 
-                return (
-                  <Grid item key={`${surah.surah}:${ayah}`}>
-                    <AyahButton
-                      ayah={ayah}
-                      isSelected={isAyahSelected(currentJuzLocalIndex)}
-                      onClick={() => handleAyahSelection(currentJuzLocalIndex)}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-            <Divider />
-          </Container>
-        );
-      })}
+                  juzLocalAyahIndex++;
 
-      {!isDrawerOpen && totalAyah > 0 && (
+                  return (
+                    <Grid item key={`${surah.surah}:${ayah}`}>
+                      <AyahButton
+                        ayah={ayah}
+                        isSelected={isAyahSelected(currentJuzLocalIndex)}
+                        onClick={() =>
+                          handleAyahSelection(currentJuzLocalIndex)
+                        }
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+              <Divider />
+            </Container>
+          );
+        })}
+      </Box>
+      {playButtonVisible && (
         <Box
           sx={{
             position: "fixed",
-            top: "50%",
+            top: 0,
+            left: 0,
             right: 0,
-            transform: "translateY(-50%)",
-            zIndex: 1200,
-            mr: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent backdrop
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1300, // Ensure it's on top of other content
           }}
+          onClick={handleClosePlayButton} // Click on backdrop closes it
         >
-          <IconButton
+          <Button
+            variant="contained"
             color="primary"
-            onClick={() => setIsDrawerOpen(true)}
             size="large"
+            onClick={handlePlayButtonClickWithStop} // Click on button plays
             sx={{
-              bgcolor: "background.paper",
-              boxShadow: 5,
-              borderTopLeftRadius: 8,
-              borderBottomLeftRadius: 8,
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
-              p: 1.5,
-              "&:hover": { bgcolor: "primary.light" },
+              // Add some styling to make the button stand out
+              padding: "16px 32px",
+              fontSize: "1.2rem",
+              boxShadow: 6, // Add a shadow
             }}
-            aria-label="Open Ayah Text"
           >
-            <KeyboardDoubleArrowLeftIcon fontSize="inherit" />
-          </IconButton>
+            Play Selected Ayaat
+          </Button>
         </Box>
       )}
-
-      <PlaybackSettingsDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        // Juz Info Props
-        juzName={juz.name}
-        juzNumber={juzNumber}
-        totalJuzAyahs={juz.numberOfAyahs}
-        ayahNumberFirstGlobal={ayahNumberFirstGlobal}
-        ayahRangeText={ayahRangeText}
-        totalAyahsSelected={totalAyah}
-        // Select All Props
-        selectAll={selectAll}
-        onSelectAllChange={handleSelectAllChange}
-        // Action Prop
-        isDisabled={ayahNumberFirstGlobal === null || totalAyah === 0}
-      />
     </Box>
   );
 }
