@@ -39,28 +39,19 @@ export default function Player({
   const [gapSeconds, setGapSeconds] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
 
-  
-  //const globalIndices = useMemo(()=>ayahList.map(i=>ayahNumberFirst + i), [ayahList])
-  // const selectedAyahText = useMemo(()=>{
-  //   let currentGlobalIndex = globalIndices[currentTrackIndex]
-  //   let verseKey = QURAN[currentGlobalIndex].verse_key
-  //   let surahName = DATA[verseKey.split(":")[0]-1].englishName
-  //   return "Surah "+ surahName + " - Ayah: " + verseKey.split(":")[1]
-
-  // }, [globalIndices, currentTrackIndex])
-
   useEffect(() => {
     setPlayerPageCurrentTrackIndex(currentTrackIndex);
   }, [currentTrackIndex]);
 
-  const audioSourceUrl = useMemo(() => {
+  const [audioSourceUrl, globalIndices] = useMemo(() => {
     // Wait until URL parameters are parsed
     if (ayahNumberFirst === null || ayahList === null) return [];
 
     const urls = [];
+    const indices = [];
     const surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
 
-    ayahList.map((i)=> {
+    ayahList.map((i) => {
       const currentGlobalAyah = ayahNumberFirst + i;
 
       // Check if the current ayah is the start of a new surah (and not Surah Tawba's start)
@@ -73,6 +64,7 @@ export default function Player({
           urls.push(
             "https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/1.mp3"
           );
+          indices.push(1);
         }
       }
 
@@ -80,10 +72,19 @@ export default function Player({
       urls.push(
         `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${currentGlobalAyah}.mp3`
       );
-    })
+      indices.push(currentGlobalAyah);
+    });
 
-    return urls;
+    return [urls, indices];
   }, [ayahNumberFirst, ayahList]);
+
+  const selectedAyahText = useMemo(() => {
+    let currentGlobalIndex = globalIndices[currentTrackIndex];
+    if (currentGlobalIndex === 1) return "Bismillah";
+    let verseKey = QURAN[currentGlobalIndex].verse_key;
+    let surahName = DATA[verseKey.split(":")[0] - 1].englishName;
+    return "Surah " + surahName + " - Ayah: " + verseKey.split(":")[1];
+  }, [globalIndices, currentTrackIndex]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -333,7 +334,7 @@ export default function Player({
         </Box>
       )}
       {/* 1. Total Ayahs */}
-      {/* <Box
+      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -341,7 +342,7 @@ export default function Player({
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-          Selected Ayaat:
+          Now Playing:
         </Typography>
         <Typography
           variant="body1"
@@ -349,7 +350,7 @@ export default function Player({
         >
           {selectedAyahText}
         </Typography>
-      </Box> */}
+      </Box>
 
       {/* 2. Repeat Each Ayah */}
       <Box
