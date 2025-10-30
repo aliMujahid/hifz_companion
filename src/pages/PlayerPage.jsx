@@ -34,7 +34,6 @@ function getAyahInfo(globalIndex) {
 
 function formatAyahRanges(startGlobalIndex, subsequentIndices) {
   const allGlobalIndices = [
-    startGlobalIndex,
     ...subsequentIndices.map((i) => startGlobalIndex + i),
   ];
 
