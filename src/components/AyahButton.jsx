@@ -12,13 +12,9 @@ export default function AyahButton({ ayah, isSelected, onClick }) {
                 display: "flex",
                 alignItems: "center",
                 marginBottom: theme.spacing(1.5),
-                borderRadius: theme.shape.borderRadius,
+               
                 p: 1,
-                border: `1px solid ${
-                    isSelected
-                        ? theme.palette.primary.main // Solid border for selected
-                        : theme.palette.divider
-                }`,
+                
                 backgroundColor: isSelected
                     ? theme.palette.primary.light + "1a" // Subtle background for selected
                     : theme.palette.background.paper, 

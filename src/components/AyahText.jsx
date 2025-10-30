@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import QURAN from "../../indopak-nastaleeq-vers.json";
 import DATA from "../../surahData.json";
 
@@ -10,16 +10,17 @@ const BISMILLAH_TEXT = {
   isBismillah: true,
 };
 
-const AyahText = ({ayahNumberFirst, totalAyah, currentAyahTextIndex}) => {
+const AyahText = ({ayahNumberFirst, ayahList, currentAyahTextIndex}) => {
     const theme = useTheme();
+    const itemRefs = useRef([]);
 
     const ayahTextsWithBismillah = useMemo(() => {
-    if (ayahNumberFirst === null || totalAyah === 0) return [];
+    if (ayahNumberFirst === null || ayahList === null) return [];
 
     const surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
     const texts = [];
 
-    for (let i = 0; i < totalAyah; i++) {
+    ayahList.map((i)=> {
       const currentGlobalAyah = ayahNumberFirst + i;
 
       // Check if the current ayah is the start of a new surah (and not Surah 1 or Surah 9)
@@ -39,10 +40,21 @@ const AyahText = ({ayahNumberFirst, totalAyah, currentAyahTextIndex}) => {
       if (ayah) {
         texts.push({ ...ayah, key: `ayah-${currentGlobalAyah}` });
       }
-    }
+    })
 
     return texts;
-  }, [ayahNumberFirst, totalAyah]);
+  }, [ayahNumberFirst, ayahList]);
+
+  // Effect to scroll the current item into view
+  useEffect(() => {
+    const currentItemRef = itemRefs.current[currentAyahTextIndex];
+    if (currentItemRef) {
+      currentItemRef.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [currentAyahTextIndex, ayahTextsWithBismillah]);
 
   return (
     <Box
@@ -62,6 +74,7 @@ const AyahText = ({ayahNumberFirst, totalAyah, currentAyahTextIndex}) => {
             return (
               <Typography
                 key={item.key}
+                ref={(el) => (itemRefs.current[index] = el)}
                 fontSize={{
                   xs: isBismillah ? "1.5rem" : "1.8rem",
                   sm: isBismillah ? "1.8rem" : "2rem",

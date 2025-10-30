@@ -11,7 +11,7 @@ export default function PlayerPage() {
 
 
   const [ayahNumberFirst, setAyahNumberFirst] = useState(null);
-  const [totalAyah, setTotalAyah] = useState(0);
+  const [ayahList, setAyahList] = useState([])
 
   const [showText, setShowText] = useState(true);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -21,12 +21,12 @@ export default function PlayerPage() {
 
     // Parse and validate parameters
     const start = parseInt(params.get("start"), 10) || 1;
-    const count = parseInt(params.get("count"), 10) || 1;
-    const show = params.get("show") === "true";
+    const ayaat = params.get("ayaat")?.split(",").map(i=>parseInt(i, 10)) || [];
+    
 
     setAyahNumberFirst(start);
-    setTotalAyah(count);
-    setShowText(show);
+    setAyahList(ayaat);
+
   }, []);
 
   const toggleShowText = () => {
@@ -45,9 +45,9 @@ export default function PlayerPage() {
   return (
     <>
       {showText && (
-        <AyahText ayahNumberFirst={ayahNumberFirst} totalAyah={totalAyah} currentAyahTextIndex={currentTrackIndex} />
+        <AyahText ayahNumberFirst={ayahNumberFirst} ayahList={ayahList} currentAyahTextIndex={currentTrackIndex} />
       )}
-      <Player ayahNumberFirst={ayahNumberFirst} totalAyah={totalAyah} setPlayerPageCurrentTrackIndex={setCurrentTrackIndex} showText={showText} toggleShowText={toggleShowText} />
+      <Player ayahNumberFirst={ayahNumberFirst} ayahList={ayahList} setPlayerPageCurrentTrackIndex={setCurrentTrackIndex} showText={showText} toggleShowText={toggleShowText} />
     </>
   );
 }

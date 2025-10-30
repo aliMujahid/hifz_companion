@@ -20,7 +20,7 @@ import QURAN from "../../indopak-nastaleeq-vers.json";
 
 export default function Player({
   ayahNumberFirst,
-  totalAyah,
+  ayahList,
   setPlayerPageCurrentTrackIndex,
   showText,
   toggleShowText,
@@ -39,32 +39,15 @@ export default function Player({
   const [gapSeconds, setGapSeconds] = useState(0);
   const [repeatCount, setRepeatCount] = useState(1);
 
-  const selectedAyahText = useMemo(() => {
-    let firstAyahSurah =
-      DATA[parseInt(QURAN[ayahNumberFirst].verse_key.split(":")[0], 10) - 1]
-        .englishName;
-    let firstAyahNumber = parseInt(
-      QURAN[ayahNumberFirst].verse_key.split(":")[1]
-    );
-    let lastAyahSurah =
-      DATA[
-        parseInt(
-          QURAN[ayahNumberFirst + totalAyah - 1].verse_key.split(":")[0],
-          10
-        ) - 1
-      ].englishName;
-    let lastAyahNumber = parseInt(
-      QURAN[ayahNumberFirst + totalAyah - 1].verse_key.split(":")[1]
-    );
-    if (firstAyahSurah === lastAyahSurah)
-      return `${firstAyahSurah + ":  "}${
-        firstAyahNumber + " - " + lastAyahNumber
-      }`;
+  
+  //const globalIndices = useMemo(()=>ayahList.map(i=>ayahNumberFirst + i), [ayahList])
+  // const selectedAyahText = useMemo(()=>{
+  //   let currentGlobalIndex = globalIndices[currentTrackIndex]
+  //   let verseKey = QURAN[currentGlobalIndex].verse_key
+  //   let surahName = DATA[verseKey.split(":")[0]-1].englishName
+  //   return "Surah "+ surahName + " - Ayah: " + verseKey.split(":")[1]
 
-    return `${firstAyahSurah + ":" + firstAyahNumber} - ${
-      lastAyahSurah + ":" + lastAyahNumber
-    }`;
-  }, [ayahNumberFirst, totalAyah]);
+  // }, [globalIndices, currentTrackIndex])
 
   useEffect(() => {
     setPlayerPageCurrentTrackIndex(currentTrackIndex);
@@ -72,12 +55,12 @@ export default function Player({
 
   const audioSourceUrl = useMemo(() => {
     // Wait until URL parameters are parsed
-    if (ayahNumberFirst === null || totalAyah === 0) return [];
+    if (ayahNumberFirst === null || ayahList === null) return [];
 
     const urls = [];
     const surahFirstAyahNumberList = DATA.map((surah) => surah.firstAyahIndex);
 
-    for (let i = 0; i < totalAyah; i++) {
+    ayahList.map((i)=> {
       const currentGlobalAyah = ayahNumberFirst + i;
 
       // Check if the current ayah is the start of a new surah (and not Surah Tawba's start)
@@ -97,10 +80,10 @@ export default function Player({
       urls.push(
         `https://cdn.islamic.network/quran/audio/192/ar.abdurrahmaansudais/${currentGlobalAyah}.mp3`
       );
-    }
+    })
 
     return urls;
-  }, [ayahNumberFirst, totalAyah]);
+  }, [ayahNumberFirst, ayahList]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -306,7 +289,7 @@ export default function Player({
         borderRadius: 1,
         // Optional: Add a shadow for the dropdown effect when showText is true
         ...(showText && {
-          position: "absolute",
+          position: "fixed",
           top: "auto",
           right: 0,
           bottom: "14%", // Position above the main player bar
@@ -350,7 +333,7 @@ export default function Player({
         </Box>
       )}
       {/* 1. Total Ayahs */}
-      <Box
+      {/* <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -366,7 +349,7 @@ export default function Player({
         >
           {selectedAyahText}
         </Typography>
-      </Box>
+      </Box> */}
 
       {/* 2. Repeat Each Ayah */}
       <Box
@@ -616,7 +599,6 @@ export default function Player({
 
   return (
     <>
-      {" "}
       {!showText && (
         <Box
           sx={{

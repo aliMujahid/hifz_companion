@@ -47,7 +47,7 @@ export default function JuzPage() {
                   marginBottom: theme.spacing(1.5),
                   borderRadius: theme.shape.borderRadius,
                   p: 1,
-                  border: `1px solid ${theme.palette.divider}`,
+                  
                   backgroundColor: theme.palette.background.paper, 
                   boxShadow: "none",
                   cursor: "pointer",

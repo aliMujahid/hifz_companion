@@ -17,8 +17,7 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Toolbar from "@mui/material/Toolbar";
-import SurahDetailPage from "./pages/SurahDetailPage";
-import JuzDetailPage from "./pages/JuzDetailPage";
+import DetailPage from "./pages/DetailPage";
 import PlayerPage from "./pages/PlayerPage";
 
 const BASE_PATH = "/hifz_companion";
@@ -120,17 +119,12 @@ function AppContent() {
 
       <Box sx={{ p: 0 }}>
         <Routes>
-          {/* 1. Surah List Page */}
           <Route path="/" element={<SurahPage />} />
 
-          {/* 2. Surah Detail Page with dynamic ID */}
-          <Route path="/surah/:surahNumber" element={<SurahDetailPage />} />
+          <Route path="/:sectionType/:sectionNumber" element={<DetailPage />} />
 
-          {/* 3. Juz (Para) Page */}
           <Route path="/juz" element={<JuzPage />} />
 
-          {/* 4. Juz (Para) Detail Page with dynamic ID */}
-          <Route path="/juz/:juzNumber" element={<JuzDetailPage />} />
           <Route path="/play" element={<PlayerPage />} />
         </Routes>
       </Box>
