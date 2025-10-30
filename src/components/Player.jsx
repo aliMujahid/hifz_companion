@@ -542,7 +542,7 @@ export default function Player({
         }}
       >
         <Typography>
-          Repeat: {currentRepeat}/{repeatCount}
+          Repeat: {currentRepeat + 1}/{repeatCount}
         </Typography>
         {/* Navigation Buttons */}
         <Box>
@@ -592,7 +592,7 @@ export default function Player({
           </Tooltip>
         </Box>
         <Typography>
-          Loop: {currentSelectionLoop}/{loopCount}
+          Loop: {currentSelectionLoop + 1}/{loopCount}
         </Typography>
       </Box>
     </Box>
@@ -606,7 +606,7 @@ export default function Player({
             width: "100%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center",
+            pt: 5,
             minHeight: "100vh",
             position: "static",
             backgroundColor: theme.palette.background.default,
@@ -620,6 +620,8 @@ export default function Player({
               backgroundColor: theme.palette.background.paper,
               borderRadius: 2,
               boxShadow: 8,
+              height: 500,
+              p: 3,
             }}
           >
             {PlaybackOptions({ isExpanded: true, showText: false })}
