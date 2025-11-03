@@ -68,8 +68,7 @@ const AyahText = ({ ayahNumberFirst, ayahList, currentAyahTextIndex }) => {
     <Box
       sx={{
         pb: 20,
-        pt: 2,
-        px: { xs: 2, sm: 4, md: 8 },
+        pt: 2,        
         width: { xs: "100%", sm: "99%", md: "80%", lg: "60%" },
         mx: "auto",
       }}
@@ -95,7 +94,8 @@ const AyahText = ({ ayahNumberFirst, ayahList, currentAyahTextIndex }) => {
               mb: isBismillah ? 2 : 3,
               lineHeight: 2.2,
               transition: "background-color 0.3s, color 0.3s",
-              p: 1,
+              px: { xs: 2, sm: 4, md: 8 },
+              py:1,
               borderRadius: 1,
               textAlign: isBismillah ? "center" : "right",
               backgroundColor: isCurrentItem

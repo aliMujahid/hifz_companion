@@ -2,33 +2,40 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { useNavigate } from "react-router-dom"; 
-import { useState} from "react";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import SurahInfoCard from "../components/SurahInfoCard";
 import { useTheme } from "@mui/material/styles";
 import data from "../../juzData.json";
 
-
-
-
 export default function JuzPage() {
-
-
   const navigate = useNavigate();
 
-    const handleJuzClick = (juzNumber) => {
-        // Navigate to the detail page for the clicked juz
-        navigate(`/juz/${juzNumber}`);
-    };
+  const handleJuzClick = (juzNumber) => {
+    // Navigate to the detail page for the clicked juz
+    navigate(`/juz/${juzNumber}`);
+  };
 
-    const theme = useTheme();
- 
-
+  const theme = useTheme();
 
   return (
-    <Box sx={{ p: 2, pb: 30 }}>
+    <Box sx={{ p: { xs: 0, md: 2 }, pb: 3 }}>
       <Container maxWidth="md">
-        <Typography variant="h4" component="h1" gutterBottom align="center">
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          align="center"
+          sx={{
+            fontSize: {
+              xs: "1.5rem",
+              sm: "1.8rem",
+              md: "2rem",
+              lg: "2.125rem",
+            },
+            mb:2
+          }}
+        >
           Juz (Para)
         </Typography>
 
@@ -46,9 +53,9 @@ export default function JuzPage() {
                   alignItems: "center",
                   marginBottom: theme.spacing(1.5),
                   borderRadius: theme.shape.borderRadius,
-                  p: 1,
                   
-                  backgroundColor: theme.palette.background.paper, 
+
+                  backgroundColor: theme.palette.background.paper,
                   boxShadow: "none",
                   cursor: "pointer",
                   transition: "all 0.2s ease-in-out",
@@ -57,9 +64,8 @@ export default function JuzPage() {
                   },
                 }}
                 key={juz.number}
-                
-                onClick={()=>{
-                  handleJuzClick(juz.number)
+                onClick={() => {
+                  handleJuzClick(juz.number);
                 }}
               >
                 <Box
@@ -88,6 +94,5 @@ export default function JuzPage() {
         </Grid>
       </Container>
     </Box>
-    
   );
 }

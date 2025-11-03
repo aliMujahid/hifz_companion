@@ -71,16 +71,16 @@ function AppContent() {
   return (
     <>
       <AppBar
-        position="static"
+        position="sticky"
         color="inherit"
         elevation={0}
-        sx={{ borderBottom: 1, borderColor: "divider" }}
+        sx={{ borderBottom: 1, borderColor: "divider", top: -60 }}
       >
         <Toolbar sx={{ flexDirection: "column", py: 1 }}>
           <Typography
             variant="h5"
             component={Link}
-            to="/"
+            to="/surah"
             align="center"
             sx={{
               width: "100%",
@@ -111,7 +111,7 @@ function AppContent() {
               },
             }}
           >
-            <LinkTab label="Suras" href="/" />
+            <LinkTab label="Suras" href="/surah" />
             <LinkTab label="Paras" href="/juz" />
           </Tabs>
         </Toolbar>
@@ -119,7 +119,7 @@ function AppContent() {
 
       <Box sx={{ p: 0 }}>
         <Routes>
-          <Route path="/" element={<SurahPage />} />
+          <Route path="/surah" element={<SurahPage />} />
 
           <Route path="/:sectionType/:sectionNumber" element={<DetailPage />} />
 

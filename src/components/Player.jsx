@@ -1,7 +1,8 @@
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { IconButton } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import Card from "@mui/material/Card";
@@ -18,6 +19,8 @@ import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 import CustomTextField from "./playerComponents/CustomTextField";
 import QURAN from "../../indopak-nastaleeq-vers.json";
 
+import { useNavigate } from "react-router-dom";
+
 export default function Player({
   ayahNumberFirst,
   ayahList,
@@ -25,6 +28,7 @@ export default function Player({
   showText,
   toggleShowText,
 }) {
+  const navigate = useNavigate();
   const theme = useTheme();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [currentRepeat, setCurrentRepeat] = useState(0);
@@ -83,7 +87,7 @@ export default function Player({
     if (currentGlobalIndex === 1) return "Bismillah";
     let verseKey = QURAN[currentGlobalIndex].verse_key;
     let surahName = DATA[verseKey.split(":")[0] - 1].englishName;
-    return "Surah " + surahName + " - Ayah: " + verseKey.split(":")[1];
+    return  surahName + " - Ayah: " + verseKey.split(":")[1];
   }, [globalIndices, currentTrackIndex]);
 
   const toggleExpanded = () => {
@@ -316,7 +320,7 @@ export default function Player({
         }),
       }}
     >
-      {isExpanded && showText && (
+      
         <Box
           sx={{
             display: "flex",
@@ -324,15 +328,17 @@ export default function Player({
             alignItems: "center",
           }}
         >
-          <Box sx={{ width: "10px" }}></Box>
-          <IconButton
+          <IconButton aria-label="Go to previous page" sx={{border:"1px solid grey"}} onClick={() => navigate(-1)}>
+            <ArrowBackIcon />
+          </IconButton>
+          {isExpanded && showText && (<IconButton
             sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
             onClick={toggleExpanded}
           >
             <KeyboardDoubleArrowDown />
-          </IconButton>
+          </IconButton>)}
         </Box>
-      )}
+      
       {/* 1. Total Ayahs */}
       <Box
         sx={{
@@ -474,7 +480,6 @@ export default function Player({
         alignItems: "center",
         px: { xs: 1, sm: 3, md: 5 },
         py: 1,
-        maxWidth: "100%",
       }}
     >
       {/* Progress Bar and Time */}
@@ -532,18 +537,16 @@ export default function Player({
         )}
       </Box>
 
-      {/* Control Buttons and Repeat Info */}
+      {/* Control Buttons */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          width: !showText ? "inherit" : { xs: "100%", sm: "90%", md: "80%" },
+          justifyContent: "space-around",
+          width: { xs: "100%", sm: "90%", md: "85%" },
         }}
       >
-        <Typography>
-          Repeat: {currentRepeat + 1}/{repeatCount}
-        </Typography>
+        
         {/* Navigation Buttons */}
         <Box>
           <Tooltip title="Previous Ayah">
@@ -591,6 +594,14 @@ export default function Player({
             </IconButton>
           </Tooltip>
         </Box>
+      </Box>
+        
+      <Box sx={{ display: "flex",
+          justifyContent: "space-between",
+          width:"100%"}}>
+        <Typography>
+          Repeat: {currentRepeat + 1}/{repeatCount}
+        </Typography>
         <Typography>
           Loop: {currentSelectionLoop + 1}/{loopCount}
         </Typography>
@@ -606,10 +617,11 @@ export default function Player({
             width: "100%",
             display: "flex",
             justifyContent: "center",
-            pt: 5,
-            minHeight: "100vh",
-            position: "static",
+            mt: 5,
+            height:"65vh",            
+            alignItems:"center",
             backgroundColor: theme.palette.background.default,
+            
           }}
         >
           <Card
@@ -620,8 +632,9 @@ export default function Player({
               backgroundColor: theme.palette.background.paper,
               borderRadius: 2,
               boxShadow: 8,
-              height: 500,
-              p: 3,
+              //height: { xs: 400, sm: 500 },
+              pb: 2,
+              px:2
             }}
           >
             {PlaybackOptions({ isExpanded: true, showText: false })}
@@ -633,6 +646,7 @@ export default function Player({
       {showText && (
         <Box
           sx={{
+            
             width: "100%",
             position: "fixed",
             bottom: 0,
@@ -644,6 +658,7 @@ export default function Player({
           <Card
             sx={{
               display: "flex",
+              justifyContent:"center",
               flexDirection: "column",
               width: "100%",
               backgroundColor: theme.palette.background.paper,
@@ -651,8 +666,6 @@ export default function Player({
               position: "relative", // Needed for absolute positioning of dropdown
             }}
           >
-            {/* Playback Options Dropdown */}
-
             {PlayerControls}
           </Card>
         </Box>

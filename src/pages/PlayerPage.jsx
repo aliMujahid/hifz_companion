@@ -1,8 +1,7 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useState, useEffect } from "react";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { IconButton } from "@mui/material";
+
 import AyahText from "../components/AyahText";
 import Player from "../components/Player";
 import { useNavigate } from "react-router-dom";
@@ -140,22 +139,8 @@ export default function PlayerPage() {
 
   return (
     <>
-      <Box sx={{ display: "flex", alignItems: "flex-start" }}>
-        <Box
-          sx={{
-            position: "sticky",
-            top: 16,
-            alignSelf: "flex-start",
-            flexShrink: 0,
-            pl: 1, // Add some padding so it's not on the edge
-          }}
-        >
-          <IconButton onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ flexGrow: 1, p: 2 }}>
+      <Box sx={{ display: "flex"}}>
+        <Box sx={{ flexGrow: 1, p: 0 }}>
           {showText && (
             <AyahText
               ayahNumberFirst={ayahNumberFirst}
@@ -168,16 +153,15 @@ export default function PlayerPage() {
               sx={{
                 pb: 0,
                 pt: 2,
-                px: { xs: 2, sm: 4, md: 8 },
+                
                 width: { xs: "100%", sm: "80%", md: "75%", lg: "60%" },
                 mx: "auto",
               }}
             >
               <Typography
                 fontSize={{
-                  xs: "0.8rem",
-                  sm: "1rem",
-                  md: "1.5rem",
+                  xs: "1.2rem",
+                  sm: "1.5rem",
                 }}
                 sx={{
                   width: "80%",

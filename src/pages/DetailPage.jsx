@@ -103,23 +103,9 @@ export default function DetailPage() {
   let juzLocalAyahIndex = 0;
 
   return (
-    <Box sx={{ p: 2 }}>
-      {" "}
-      <Box
-        sx={{
-          position: "sticky",
-          top: 16,
-          alignSelf: "flex-start",
-          flexShrink: 0,
-          pl: 1, // Add some padding so it's not on the edge
-        }}
-      >
-        <IconButton onClick={() => navigate(-1)}>
-          <ArrowBackIcon />
-        </IconButton>
-      </Box>
-      <Container maxWidth="md">
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Box sx={{ mx: 1 }}>
+      <Container sx={{px:0}} maxWidth="md">
+        <Box sx={{ display: "flex", justifyContent: "space-between", }}>
           <Typography variant="h4" component="h1" gutterBottom align="center">
             {section.englishName}
           </Typography>
@@ -135,24 +121,35 @@ export default function DetailPage() {
         </Box>
         <Box
           sx={{
+            width:"100%",
+            position: "sticky",
+            top:53,
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "space-between",            
             mt: 2,
-            px: 2,
+            
           }}
         >
           <Box
-            sx={{ width: { xs: "0%", sm: "30%", md: "60%" }, mx: "auto" }}
-          ></Box>
+           sx={{display:"flex", pr:2, alignItems:"center", backgroundColor:"white", zIndex:5}}
+          >
+            <IconButton aria-label="Go to previous page" sx={{border:"1px solid grey"}} onClick={() => navigate(-1)}>
+            <ArrowBackIcon />
+          </IconButton>
+ 
+          </Box>
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               flexGrow: 1,
+              py:1,
+              
+            backgroundColor: "#f8f8f8"
             }}
           >
-            <Typography sx={{ my: "auto" }}>
-              Selected Ayaat{sectionType === "juz" ? " (Para-local)" : ""}:{" "}
+            <Typography sx={{ my: "auto", ml: { xs:"0%", sm:"30%", md: "60%" } }}>
+              Selected Ayaat:{" "}
               {truncatedAyahList}{" "}
             </Typography>
             <Button
@@ -192,6 +189,7 @@ export default function DetailPage() {
             }
             label="Select All Ayaat"
             sx={{
+              
               // Style the label text
               "& .MuiTypography-root": {
                 fontSize: "0.7rem",
@@ -203,13 +201,14 @@ export default function DetailPage() {
         <Grid
           container
           spacing={2}
+          
           justifyContent="center"
           sx={{ width: "100%" }}
         >
           {sectionType === "juz" &&
             currentJuzSurahs.map((surah) => {
               return (
-                <Container maxWidth="lg" key={surah.surah} sx={{ pt: 5 }}>
+                <Container maxWidth="lg" key={surah.surah} sx={{ pt: {xs:2, md:5} }}>
                   <Box
                     sx={{
                       display: "flex",
@@ -268,7 +267,7 @@ export default function DetailPage() {
 
           {sectionType === "surah" &&
             ayahList.map((ayahNumber) => (
-              <Grid item key={ayahNumber}>
+              <Grid key={ayahNumber}>
                 <AyahButton
                   ayah={ayahNumber + 1}
                   isSelected={isAyahSelected(ayahNumber)}

@@ -34,20 +34,20 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
         sx={{
           position: "absolute",
           top: 0,
-          right: 0,
+          left: 0,
 
           backgroundImage: selected
             ? `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
             : "linear-gradient(45deg, #00C4AA 0%, #00A152 100%)",
           color: theme.palette.common.white,
-          borderBottomLeftRadius: 8, // Rounded corner on the inner side
+          borderBottomRightRadius: 8, // Rounded corner on the inner side
           px: 1,
           py: 0.5,
           zIndex: 1, // Ensure it sits above the title content
         }}
       >
         <Typography
-          variant="caption" // Smaller variant for a badge/index look
+          variant="caption" 
           sx={{
             fontWeight: "extrabold",
             lineHeight: 1,
@@ -60,11 +60,11 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
       {/* -------------------- RIGHT SECTION: Titles -------------------- */}
       <Box
         sx={{
-          flexGrow: 1, // This section takes up remaining space
+          flexGrow: 1,
           display: "flex",
-          flexDirection: "column", // Stack titles vertically
-          justifyContent: "center", // Center titles vertically
-          px: 1, // Horizontal padding for titles
+          flexDirection: "column",
+          justifyContent: "center",
+          px: 1, 
           py: 1.5, // Vertical padding
           paddingRight: 1.5,
         }}
@@ -73,12 +73,13 @@ export default function SurahInfoCard({ surah, onSurahCardClick, selected }) {
         <Typography
           fontFamily="AlQalam"
           dir="rtl"
-          variant="h6"
+          
           className="arabicTitle"
           sx={{
-            textAlign: "left", // Aligns to the left within its container
-            color: "text.primary", // Use secondary for Arabic to create contrast
-            fontWeight: "medium",
+            textAlign: "right", 
+            color: "text.primary",
+            fontWeight: "bold",
+            fontSize:"1.5rem",
           }}
         >
           {surah.name}
